@@ -1,0 +1,274 @@
+{
+  "name": "modbus",
+  "description": "MODBUS Master ",
+  "module": "modbus.js",
+  "single": 0,
+
+  "params": [
+    {
+      "name": "transport",
+      "note": "Транспорт",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "tcp",
+          "name": "Modbus TCP"
+        },
+        {
+          "id": "tcprtu",
+          "name": "Modbus RTU over TCP"
+        },
+        {
+          "id": "tcpascii",
+          "name": "Modbus ASCII over TCP"
+        },
+        {
+          "id": "serrtu",
+          "name": "Modbus RTU (Serial)"
+        },
+        {
+          "id": "serascii",
+          "name": "Modbus ASCII (Serial)"
+        }
+      ],
+      "val": "tcp"
+    },
+
+    {
+      "name": "host",
+      "note": "IP",
+      "type": "string",
+      "val": "192.168.0.250",
+      "visible": "data.transport && data.transport.substr(0,3) == \"tcp\""
+    },
+
+    {
+      "name": "port",
+      "note": "Порт",
+      "type": "number",
+      "val": "502",
+      "visible": "data.transport && data.transport.substr(0,3) == \"tcp\""
+    },
+
+    {
+      "name": "serialport",
+      "note": "Порт",
+      "type": "STRING",
+      "val": "COM1",
+      "visible": "data.transport && data.transport.substr(0,3) == \"ser\""
+    },
+
+    {
+      "name": "timeout",
+      "note": "Ожидание ответа от устройства (ms)",
+      "val": 100,
+      "type": "number"
+    },
+
+    {
+      "name": "polldelay",
+      "note": "Интервал между запросами (ms)",
+      "val": 0,
+      "type": "number"
+    },
+
+    {
+      "name": "dechex",
+      "note": "Вид представления адреса",
+      "type": "droplist",
+      "data": [
+        {
+          "id": 0,
+          "name": "Dec - Десятичный"
+        },
+        {
+          "id": 1,
+          "name": "Hex - Шестнадцатиричный"
+        }
+      ],
+      "val": 0
+    }
+  ],
+
+  "chpattern": [
+    {
+      "name": "desc",
+      "note": "Тип регистра",
+      "type": "droplist",
+      "data": [
+        { "id": "DI", "name": "DI - Discrete Input" },
+        { "id": "DO", "name": "DO - Discrete Output Coil" },
+        { "id": "AI", "name": "AI - Input Register" },
+        { "id": "AO", "name": "AO - Holding Register" }
+      ]
+    },
+
+    {
+      "name": "unitid",
+      "note": "Unit ID (адрес устройства)",
+      "type": "number",
+      "val": 1
+    },
+
+    {
+      "name": "address",
+      "note": "Modbus address",
+      "type": "STRING",
+      "val": 0
+    },
+
+    {
+      "name": "offset",
+      "note": "Offset",
+      "type": "number",
+      "val": 0
+    },
+
+    {
+      "name": "vartype",
+      "note": "Тип переменной",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "bool",
+          "name": "BOOL",
+          "visible": "data.desc && data.desc.substr(0,1) == \"D\""
+        },
+
+        {
+          "id": "uint8",
+          "name": "BYTE 1 байт",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "int16be",
+          "name": "INT16 BE 2 байта AABB => AABB",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "int16le",
+          "name": "INT16 LE 2 байта AABB => BBAA",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "uint16be",
+          "name": "UINT16 BE 2 байта AABB => AABB",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "uint16le",
+          "name": "UINT16 LE 2 байта AABB => BBAA",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "int32be",
+          "name": "INT32 BE 4 байта AABBCCDD => AABBCCDD",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+        {
+          "id": "int32le",
+          "name": "INT32 LE 4 байта AABBCCDD => DDCCBBAA",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "int32sw",
+          "name": "INT32 SW 4 байта AABBCCDD => CCDDAABB",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "int32sb",
+          "name": "INT32 SB 4 байта AABBCCDD => DDCCBBAA",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "uint32be",
+          "name": "UINT32 BE 4 байта AABBCCDD => AABBCCDD",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+        {
+          "id": "uint32le",
+          "name": "UINT3 2LE 4 байта AABBCCDD => DDCCBBAA",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "uint32sw",
+          "name": "UINT32 SW 4 байта AABBCCDD => CCDDAABB",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "uint32sb",
+          "name": "UINT32 SB 4 байта AABBCCDD => DDCCBBAA",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+
+        {
+          "id": "floatbe",
+          "name": "FLOAT BE 4 байта AABBCCDD => AABBCCDD",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+        {
+          "id": "floatle",
+          "name": "FLOAT LE 4 байта AABBCCDD => DDCCBBAA",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+        {
+          "id": "floatsw",
+          "name": "FLOAT SW 4 байта AABBCCDD => CCDDAABB",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+        {
+          "id": "floatsb",
+          "name": "FLOAT SB 4 байта AABBCCDD => DDCCBBAA",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        }
+      ],
+      "val": "int16be"
+    },
+    {
+      "name": "pollp",
+      "note": "Высокий приоритет при опросе",
+      "type": "cb",
+      "val": true
+    }
+  ],
+
+  "chdefault": {
+    "chan": "ch1",
+    "desc": "AO",
+    "vartype": "int16",
+    "address": 0,
+    "offset": 0,
+    "unitid": 0,
+    "pollp": true
+  },
+
+  "genrules": {
+    "DI": {
+      "cl": "SensorD"
+    },
+
+    "AI": {
+      "cl": "SensorA"
+    },
+
+    "DO": {
+      "cl": "ActorD"
+    },
+
+    "AO": {
+      "cl": "ActorA"
+    }
+  },
+
+  "actions": [{}]
+}

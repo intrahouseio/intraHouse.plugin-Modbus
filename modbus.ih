@@ -1,0 +1,6 @@
+{
+    "id":"modbus",
+    "description":"MODBUS Master ",
+    "cross":true,
+	"version":"0.0.1"
+}

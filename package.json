@@ -1,0 +1,13 @@
+{
+  "name": "modbus",
+  "version": "0.0.1",
+  "description": "MODBUS Master Plugin for intraHouse Cherry",
+  "main": "modbus.js",
+  "dependencies": {
+    "jsmodbus": "^3.0.0",
+    "modbus-serial": "^7.2.3"
+  },
+  "devDependencies": {},
+  "author": "INTRA",
+  "license": "MIT"
+}
