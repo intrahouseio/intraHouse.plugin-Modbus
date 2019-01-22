@@ -56,7 +56,7 @@ function checkResponse() {
 */
 
 /******************************** Входящие от IH ****************************************************/
-process.on("message", function(message) {
+process.on("message", message => {
   if (!message) return;
   if (typeof message == "string") {
     if (message == "SIGTERM") {
@@ -118,12 +118,12 @@ function doAct(data) {
   });
 }
 
-process.on("uncaughtException", function(err) {
+process.on("uncaughtException", err => {
   var text = "ERR (uncaughtException): " + util.inspect(err);
   logger.log(text);
 });
 
-process.on("disconnect", function() {
+process.on("disconnect",() => {
   agent.stop();
   process.exit();
 });
