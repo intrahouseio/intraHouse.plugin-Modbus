@@ -71,9 +71,16 @@
       "val": 0,
       "type": "number"
     },
+    
+    {
+        "name": "maxreadlen",
+        "note": "Max кол-во слов при чтении диапазона адресов",
+        "val": 240,
+        "type": "number"
+    },
 
     {
-      "name": "dechex",
+      "name": "hex",
       "note": "Вид представления адреса",
       "type": "droplist",
       "data": [
@@ -87,7 +94,48 @@
         }
       ],
       "val": 0
-    }
+    },
+
+    {
+        "name": "bo16",
+        "note": "Порядок байтов для 2-байтовых значений",
+        "type": "droplist",
+        "data": [
+          {
+            "id": "be",
+            "name": "Big-Endian В1B2 => B1B2"
+          },
+          {
+            "id": "le",
+            "name": "Little-Endian В1B2 => B2B1"
+          }
+        ],
+        "val": "be"
+      },
+      {
+        "name": "bo32",
+        "note": "Порядок байтов для 4-байтовых значений",
+        "type": "droplist",
+        "data": [
+          {
+            "id": "be",
+            "name": "Big-Endian B1B2B3B4 => B1B2B3B4"
+          },
+          {
+            "id": "sw",
+            "name": "Big-Endian swap B1B2B3B4 => B3B4B1B2"
+          },
+          {
+            "id": "le",
+            "name": "Little-Endian B1B2B3B4 => B4B3B2B1"
+          },
+          {
+            "id": "sb",
+            "name": "Little-Endian swap B1B2B3B4 => B2B1B4B3"
+          }
+        ],
+        "val": "sw"
+      }
   ],
 
   "chpattern": [
@@ -118,13 +166,6 @@
     },
 
     {
-      "name": "offset",
-      "note": "Offset",
-      "type": "number",
-      "val": 0
-    },
-
-    {
       "name": "vartype",
       "note": "Тип переменной",
       "type": "droplist",
@@ -142,104 +183,179 @@
         },
 
         {
-          "id": "int16be",
-          "name": "INT16 BE 2 байта AABB => AABB",
+          "id": "int16",
+          "name": "INT16 2 байта",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+      
+        {
+          "id": "uint16",
+          "name": "UINT16 2 байта",
           "visible": "data.desc && data.desc.substr(0,1) == \"A\""
         },
 
         {
-          "id": "int16le",
-          "name": "INT16 LE 2 байта AABB => BBAA",
+          "id": "int32",
+          "name": "INT32 4 байта",
+          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+        },
+      
+        {
+          "id": "uint32",
+          "name": "UINT32 4 байта",
           "visible": "data.desc && data.desc.substr(0,1) == \"A\""
         },
 
         {
-          "id": "uint16be",
-          "name": "UINT16 BE 2 байта AABB => AABB",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-
-        {
-          "id": "uint16le",
-          "name": "UINT16 LE 2 байта AABB => BBAA",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-
-        {
-          "id": "int32be",
-          "name": "INT32 BE 4 байта AABBCCDD => AABBCCDD",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-        {
-          "id": "int32le",
-          "name": "INT32 LE 4 байта AABBCCDD => DDCCBBAA",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-
-        {
-          "id": "int32sw",
-          "name": "INT32 SW 4 байта AABBCCDD => CCDDAABB",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-
-        {
-          "id": "int32sb",
-          "name": "INT32 SB 4 байта AABBCCDD => DDCCBBAA",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-
-        {
-          "id": "uint32be",
-          "name": "UINT32 BE 4 байта AABBCCDD => AABBCCDD",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-        {
-          "id": "uint32le",
-          "name": "UINT3 2LE 4 байта AABBCCDD => DDCCBBAA",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-
-        {
-          "id": "uint32sw",
-          "name": "UINT32 SW 4 байта AABBCCDD => CCDDAABB",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-
-        {
-          "id": "uint32sb",
-          "name": "UINT32 SB 4 байта AABBCCDD => DDCCBBAA",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-
-        {
-          "id": "floatbe",
-          "name": "FLOAT BE 4 байта AABBCCDD => AABBCCDD",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-        {
-          "id": "floatle",
-          "name": "FLOAT LE 4 байта AABBCCDD => DDCCBBAA",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-        {
-          "id": "floatsw",
-          "name": "FLOAT SW 4 байта AABBCCDD => CCDDAABB",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
-        },
-        {
-          "id": "floatsb",
-          "name": "FLOAT SB 4 байта AABBCCDD => DDCCBBAA",
+          "id": "float",
+          "name": "FLOAT 4 байта",
           "visible": "data.desc && data.desc.substr(0,1) == \"A\""
         }
       ],
-      "val": "int16be"
+      "val": "int16"
     },
     {
-      "name": "pollp",
-      "note": "Высокий приоритет при опросе",
-      "type": "cb",
-      "val": true
-    }
+        "name": "fcr",
+        "note": "Функция чтения",
+        "type": "droplist",
+        "data": [
+            {
+              "id": "1",
+              "name": "FC1 - Read Coils",
+              "visible": "data.desc && data.desc.substr(0,1) == \"D\""
+            },
+    
+            {
+                "id": "2",
+                "name": "FC2 - Read Discrete Inputs",
+                "visible": "data.desc && data.desc.substr(0,1) == \"D\""
+            },
+            {
+                "id": "3",
+                "name": "FC3 - Read Holding Registers",
+                "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+            },
+            {
+                "id": "4",
+                "name": "FC4 - Read Input Registers",
+                "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+             }
+        ],    
+        "val": "3"
+    },
+    {
+        "name": "gr",
+        "note": "Включить чтение диапазона",
+        "type": "cb",
+        "val": true
+    },
+    {
+        "name": "useactions",
+        "note": "Настроить команды",
+        "type": "cb",
+        "val": false
+    },
+    {
+        "name": "usek",
+        "note": "Трансформация значения",
+        "type": "cb",
+        "visible": "data.desc==\"AI\" || data.desc==\"AO\""
+    },
+    {
+        "name": "ks0",
+        "note": "Min значение логического уровня ",
+        "type": "number",
+        "visible": "data.usek"
+    },
+    {
+        "name": "ks",
+        "note": "Max значение логического уровня",
+        "type": "number",
+        "visible": "data.usek"
+    },
+    {
+        "name": "kh0",
+        "note": "Min значение физического уровня",
+        "type": "number",
+        "visible": "data.usek"
+    },
+    {
+        "name": "kh",
+        "note": "Max значение физического уровня",
+        "type": "number",
+        "visible": "data.usek"
+    },
+    {
+        "name": "actions",
+        "tabnote": "Команды",
+        "note": "$action",
+        "type": "multi",
+        "visible": "data.useactions && (data.desc == \"DO\" || data.desc == \"AO\")",
+        "data": {
+          "scheme": {
+            "act": { "name": "$action", "type": "droplist", "order": 0, "data":[{"id":"on", "name":"on"}, {"id":"off", "name":"off"},{"id":"set", "name":"set"}] },
+            "address":{
+                "name": "Modbus address",
+                "type": "STRING",
+                "order": 1,
+                "val": 0
+              },
+          
+              "vartype":{
+                "name": "Тип переменной",
+                "type": "droplist",
+                "order": 2,
+                "data": [
+                  {
+                    "id": "bool",
+                    "name": "BOOL"
+                  },
+          
+                  {
+                    "id": "uint8",
+                    "name": "BYTE 1 байт"
+                  },
+          
+                  {
+                    "id": "int16",
+                    "name": "INT16 2 байта"
+                  },
+                
+                  {
+                    "id": "uint16",
+                    "name": "UINT16 2 байта"
+                  },
+          
+                  {
+                    "id": "int32",
+                    "name": "INT32 4 байта"
+                  },
+                
+                  {
+                    "id": "uint32",
+                    "name": "UINT32 4 байта"
+                  },
+          
+                  {
+                    "id": "float",
+                    "name": "FLOAT 4 байта"
+                  }]
+            },
+            "value":{
+                "name": "Значение",
+                "type": "STRING",
+                "order": 3,
+                "val": ""
+            }
+          },
+          "default": {
+            "act": "on",
+            "address": 0,
+            "vartype": "int16",
+            "value": ""
+          }
+        }
+      }
   ],
 
   "chdefault": {
@@ -247,9 +363,18 @@
     "desc": "AO",
     "vartype": "int16",
     "address": 0,
-    "offset": 0,
     "unitid": 0,
-    "pollp": true
+    "pollp": true,
+    "fcr": "3",
+    "gr": true,
+    "usek": false,
+    "ks0": 0,
+    "ks": 100,
+    "kh0": 0,
+    "kh": 100,
+    "useactions": false,
+    "actions":[ { "act": "on", "address": 0, "vartype": "bool", "value": ""}]
+
   },
 
   "genrules": {
