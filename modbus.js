@@ -42,18 +42,6 @@ function getTable(name) {
   process.send({ type: "get", tablename: name + "/" + plugin.unitId });
 }
 
-// Проверка, что получен ответ  - потеря связи?
-/*
-function checkResponse() {
-  let res = agent.checkResponse();
-  if (res) {
-    plugin.log(res);
-    agent.stop();
-    process.exit(2);
-  }
-}
-*/
-
 /** ****************************** Входящие от IH ****************************************************/
 process.on("message", message => {
   if (!message) return;
