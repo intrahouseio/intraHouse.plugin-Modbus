@@ -64,22 +64,6 @@
         "type": "number"
     },
 
-    {
-      "name": "hex",
-      "note": "Вид представления адреса",
-      "type": "droplist",
-      "data": [
-        {
-          "id": 0,
-          "name": "Dec - Десятичный"
-        },
-        {
-          "id": 1,
-          "name": "Hex - Шестнадцатиричный"
-        }
-      ],
-      "val": 0
-    },
 
     {
         "name": "bo16",
@@ -126,20 +110,21 @@
   "chpattern": [
     {
       "name": "desc",
-      "note": "Тип регистра",
+      "note": "Тип устройства",
       "type": "droplist",
       "data": [
         { "id": "DI", "name": "DI - Discrete Input" },
-        { "id": "DO", "name": "DO - Discrete Output Coil" },
-        { "id": "AI", "name": "AI - Input Register" },
-        { "id": "AO", "name": "AO - Holding Register" }
+        { "id": "DO", "name": "DO - Discrete Output" },
+        { "id": "AI", "name": "AI - Analog Input" },
+        { "id": "AO", "name": "AO - Analog  Output" },
+        { "id": "EA", "name": "EA - Enum (switch)" }
       ],
       "order":1
     },
 
     {
       "name": "unitid",
-      "note": "Unit ID (адрес устройства)",
+      "note": "Unit ID (адрес устройства на шине)",
       "type": "number",
       "order":2,
       "val": 1
@@ -147,10 +132,10 @@
 
     {
       "name": "address",
-      "note": "Адрес регистра",
+      "note": "Адрес регистра (dec or hex)",
       "type": "STRING",
       "order":10,
-      "val": 0
+      "val":  "0x0000"
     },
 
     {
@@ -160,44 +145,37 @@
       "data": [
         {
           "id": "bool",
-          "name": "BOOL",
-          "visible": "data.desc && data.desc.substr(0,1) == \"D\""
+          "name": "BOOL"
         },
 
         {
           "id": "uint8",
-          "name": "BYTE 1 байт",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+          "name": "BYTE 1 байт"
         },
 
         {
           "id": "int16",
-          "name": "INT16 2 байта",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+          "name": "INT16 2 байта"
         },
       
         {
           "id": "uint16",
-          "name": "UINT16 2 байта",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+          "name": "UINT16 2 байта"
         },
 
         {
           "id": "int32",
-          "name": "INT32 4 байта",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+          "name": "INT32 4 байта"
         },
       
         {
           "id": "uint32",
-          "name": "UINT32 4 байта",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+          "name": "UINT32 4 байта"
         },
 
         {
           "id": "float",
-          "name": "FLOAT 4 байта",
-          "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+          "name": "FLOAT 4 байта"
         }
       ],
       "order":11,
@@ -206,29 +184,29 @@
     },
     {
         "name": "fcr",
-        "note": "Функция чтения",
+        "note": "Функции",
         "type": "droplist",
         "data": [
             {
               "id": "1",
-              "name": "FC1 - Read Coils",
-              "visible": "data.desc && data.desc.substr(0,1) == \"D\""
+              "name": "FC1 - read, FC5 - write",
+              "visible": "data.vartype == \"bool\""
             },
     
             {
                 "id": "2",
-                "name": "FC2 - Read Discrete Inputs",
-                "visible": "data.desc && data.desc.substr(0,1) == \"D\""
+                "name": "FC2 - read",
+                "visible": "data.vartype == \"bool\""
             },
             {
                 "id": "3",
-                "name": "FC3 - Read Holding Registers",
-                "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+                "name": "FC3 - read, FC6 - write",
+                "visible": "data.vartype != \"bool\""
             },
             {
                 "id": "4",
-                "name": "FC4 - Read Input Registers",
-                "visible": "data.desc && data.desc.substr(0,1) == \"A\""
+                "name": "FC4 - read",
+                "visible": "data.vartype != \"bool\""
              }
         ],  
         "order":12,  
@@ -245,34 +223,33 @@
         "name": "usek",
         "note": "Трансформация значения",
         "type": "cb",
-        "order":14,  
-        "visible": "data.desc==\"AI\" || data.desc==\"AO\""
+        "order":14
     },
     {
         "name": "ks0",
         "note": "Min значение логического уровня ",
-        "type": "number",
+        "type": "STRING",
         "order":15,  
         "visible": "data.usek"
     },
     {
         "name": "ks",
         "note": "Max значение логического уровня",
-        "type": "number",
+        "type": "STRING",
         "order":16,  
         "visible": "data.usek"
     },
     {
         "name": "kh0",
         "note": "Min значение физического уровня",
-        "type": "number",
+        "type": "STRING",
         "order":17,  
         "visible": "data.usek"
     },
     {
         "name": "kh",
         "note": "Max значение физического уровня",
-        "type": "number",
+        "type": "STRING",
         "order":18,  
         "visible": "data.usek"
     },
@@ -286,12 +263,12 @@
     {
         "name": "actions",
         "tabnote": "Команды",
-        "note": "$action",
+        "note": "Команда",
         "type": "multi",
         "visible": "data.useactions && (data.desc == \"DO\" || data.desc == \"AO\")",
         "data": {
           "scheme": {
-            "act": { "name": "$action", "type": "droplist", "order": 0, "data":[{"id":"on", "name":"on"}, {"id":"off", "name":"off"},{"id":"set", "name":"set"}] },
+            "act": { "name": "Команда", "type": "droplist", "order": 0, "data":[{"id":"on", "name":"on"}, {"id":"off", "name":"off"},{"id":"set", "name":"set"}] },
             "address":{
                 "name": "Modbus address",
                 "type": "STRING",
@@ -343,6 +320,7 @@
                 "name": "Значение",
                 "type": "STRING",
                 "order": 3,
+                "visible": "data.act != \"set\"",
                 "val": ""
             }
           },
@@ -360,8 +338,8 @@
     "chan": "ch1",
     "desc": "AO",
     "vartype": "int16",
-    "address": 0,
-    "unitid": 0,
+    "address": "0x0000",
+    "unitid": 1,
     "pollp": true,
     "fcr": "3",
     "gr": true,
@@ -371,7 +349,7 @@
     "kh0": 0,
     "kh": 100,
     "useactions": false,
-    "actions":[ { "act": "on", "address": 0, "vartype": "bool", "value": ""}]
+    "actions":[ { "act": "on", "address": "0x0000", "vartype": "bool", "value": ""}]
 
   },
 
@@ -390,6 +368,10 @@
 
     "AO": {
       "cl": "ActorA"
+    },
+
+    "EA": {
+        "cl": "ActorE"
     }
   },
 
