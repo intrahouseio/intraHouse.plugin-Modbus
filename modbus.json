@@ -8,7 +8,7 @@
   "params": [
     {
       "name": "transport",
-      "note": "Транспорт",
+      "note": "$transport",
       "type": "droplist",
       "data": [
         {
@@ -29,7 +29,7 @@
 
     {
       "name": "port",
-      "note": "Порт",
+      "note": "$port",
       "type": "number",
       "val": "502",
       "visible": "data.transport && data.transport.substr(0,3) == \"tcp\""
@@ -37,7 +37,7 @@
 
     {
       "name": "serialport",
-      "note": "Порт",
+      "note": "$port",
       "type": "STRING",
       "val": "COM1",
       "visible": "data.transport && data.transport.substr(0,3) == \"ser\""
@@ -45,21 +45,21 @@
 
     {
       "name": "timeout",
-      "note": "Ожидание ответа на запрос (ms)",
+      "note": "$timeout",
       "val": 1000,
       "type": "number"
     },
 
     {
       "name": "polldelay",
-      "note": "Интервал между запросами (ms)",
+      "note": "$polldelay",
       "val": 200,
       "type": "number"
     },
     
     {
         "name": "maxreadlen",
-        "note": "Max кол-во слов при чтении диапазона",
+        "note": "$maxreadlen",
         "val": 250,
         "type": "number"
     },
@@ -67,7 +67,7 @@
 
     {
         "name": "bo16",
-        "note": "Порядок байтов для 2-байтовых значений",
+        "note": "$bo16",
         "type": "droplist",
         "data": [
           {
@@ -83,7 +83,7 @@
       },
       {
         "name": "bo32",
-        "note": "Порядок байтов для 4-байтовых значений",
+        "note": "$bo32",
         "type": "droplist",
         "data": [
           {
@@ -110,7 +110,7 @@
   "chpattern": [
     {
       "name": "desc",
-      "note": "Тип устройства",
+      "note": "$desc",
       "type": "droplist",
       "data": [
         { "id": "DI", "name": "DI - Discrete Input" },
@@ -124,7 +124,7 @@
 
     {
       "name": "unitid",
-      "note": "Unit ID (адрес устройства на шине)",
+      "note": "$unitid",
       "type": "number",
       "order":2,
       "val": 1
@@ -132,7 +132,7 @@
 
     {
       "name": "address",
-      "note": "Адрес регистра (dec or hex)",
+      "note": "$address",
       "type": "STRING",
       "order":10,
       "val":  "0x0000"
@@ -140,7 +140,7 @@
 
     {
       "name": "vartype",
-      "note": "Тип переменной",
+      "note": "$vartype",
       "type": "droplist",
       "data": [
         {
@@ -184,7 +184,7 @@
     },
     {
         "name": "fcr",
-        "note": "Функции",
+        "note": "$fcr",
         "type": "droplist",
         "data": [
             {
@@ -214,70 +214,70 @@
     },
     {
         "name": "gr",
-        "note": "Группировать при чтении",
+        "note": "$gr",
         "type": "cb",
         "order":13,  
         "val": true
     },
     {
         "name": "usek",
-        "note": "Трансформация значения",
+        "note": "$usek",
         "type": "cb",
         "order":14
     },
     {
         "name": "ks0",
-        "note": "Min значение логического уровня ",
+        "note": "$ks0",
         "type": "STRING",
         "order":15,  
         "visible": "data.usek"
     },
     {
         "name": "ks",
-        "note": "Max значение логического уровня",
+        "note": "$ks",
         "type": "STRING",
         "order":16,  
         "visible": "data.usek"
     },
     {
         "name": "kh0",
-        "note": "Min значение физического уровня",
+        "note": "$kh0",
         "type": "STRING",
         "order":17,  
         "visible": "data.usek"
     },
     {
         "name": "kh",
-        "note": "Max значение физического уровня",
+        "note": "$kh",
         "type": "STRING",
         "order":18,  
         "visible": "data.usek"
     },
     {
         "name": "useactions",
-        "note": "Настроить команды",
+        "note": "$useactions",
         "type": "cb",
         "order":19,  
         "val": false
     },
     {
         "name": "actions",
-        "tabnote": "Команды",
-        "note": "Команда",
+        "tabnote": "$actions",
+        "note": "$action",
         "type": "multi",
         "visible": "data.useactions && (data.desc == \"DO\" || data.desc == \"AO\")",
         "data": {
           "scheme": {
-            "act": { "name": "Команда", "type": "droplist", "order": 0, "data":[{"id":"on", "name":"on"}, {"id":"off", "name":"off"},{"id":"set", "name":"set"}] },
+            "act": { "name": "$action", "type": "droplist", "order": 0, "data":[{"id":"on", "name":"on"}, {"id":"off", "name":"off"},{"id":"set", "name":"set"}] },
             "address":{
-                "name": "Modbus address",
+                "name": "$address",
                 "type": "STRING",
                 "order": 1,
                 "val": 0
               },
           
               "vartype":{
-                "name": "Тип переменной",
+                "name": "$vartype",
                 "type": "droplist",
                 "order": 2,
                 "data": [
@@ -317,7 +317,7 @@
                   }]
             },
             "value":{
-                "name": "Значение",
+                "name": "$value",
                 "type": "STRING",
                 "order": 3,
                 "visible": "data.act != \"set\"",

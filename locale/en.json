@@ -1,0 +1,26 @@
+{
+    "transport":"Transport",
+    "port":"Port",
+    "timeout":"Waiting for response to request (ms)",
+    "polldelay":"Interval between requests (ms)",
+    "maxreadlen":"Max number of words when reading range", 
+    "bo16":"Byte order for 2-byte values",
+    "bo32":"Byte order for 4-byte values",
+    "unitid":"Unit ID",
+    "desc":"Device type",
+    "address":"Address of the register in the table (dec or hex)",
+    "vartype":"Type",
+    "fcr":"Modbus functions",
+    "gr":"Allow reading of address range",
+    "usek":"Value transformation",
+    "ks0":"Min value of the logic level ",
+    "ks":"Max value of the logic level",
+    "kh0":"Min value of the hard level",
+    "kh":"Max value of the hard level",
+    "useactions":"Customize commands",
+    "value":"Value",
+
+    "actions":"Commands",
+    "action":"Commands"
+    
+}
