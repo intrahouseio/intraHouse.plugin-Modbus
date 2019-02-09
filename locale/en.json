@@ -8,7 +8,7 @@
     "bo32":"Byte order for 4-byte values",
     "unitid":"Unit ID",
     "desc":"Device type",
-    "address":"Address of the register in the table (dec or hex)",
+    "address":"Address (dec or hex)",
     "vartype":"Type",
     "fcr":"Modbus functions",
     "gr":"Allow reading of address range",
@@ -22,5 +22,5 @@
 
     "actions":"Commands",
     "action":"Commands"
-    
+
 }

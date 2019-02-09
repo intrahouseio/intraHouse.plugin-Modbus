@@ -9,7 +9,7 @@ const agent = require("./lib/agent");
 
 plugin.unitId = process.argv[2];
 
-plugin.log("Plugin " + plugin.unitId + " has started.", "connect");
+plugin.log("Plugin " + plugin.unitId + " has started.", 0);
 
 let step = 0;
 next();
@@ -62,11 +62,7 @@ function parseMessageFromServer(message) {
       if (message.params) {
         plugin.setParams(message.params);
         if (message.params.debug) plugin.setDebug(message.params.debug);
-        // ПОКА
-        if ( plugin.params.transport != 'tcp') {
-            plugin.log("Транспорт в текущей версии не поддерживается!");
-            process.exit(0);
-        }
+     
         next();
       }
       if (message.config) {
@@ -97,10 +93,8 @@ function doAct(data) {
   }
 
   data.forEach(item => {
-    if (item.id && item.command) {
+    if (item.id) {
       agent.doCommand(item);
-      // и на сервер передать что сделали? или придет самотеком?
-      // plugin.sendDataToServer([{ id: item.id, value }]);
     }
   });
 }
