@@ -46,7 +46,7 @@
     {
       "name": "timeout",
       "note": "$timeout",
-      "val": 1000,
+      "val": 5000,
       "type": "number"
     },
 
