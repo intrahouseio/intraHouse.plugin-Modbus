@@ -39,7 +39,8 @@ function next() {
 }
 
 function getTable(name) {
-  process.send({ type: "get", tablename: name + "/" + plugin.unitId });
+  // process.send({ type: "get", tablename: name + "/" + plugin.unitId });
+  process.send({ type: "get", tablename: name  });
 }
 
 /** ****************************** Входящие от IH ****************************************************/
