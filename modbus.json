@@ -104,6 +104,20 @@
           }
         ],
         "val": "sw"
+      },
+      {
+        "name": "fixlocalport",
+        "note": "$fixlocalport",
+        "type": "cb",
+        "val": false,
+        "visible": "data.transport && data.transport.substr(0,3) == \"tcp\""
+      },
+      {
+        "name": "localport",
+        "note": "$localport",
+        "type": "number",
+        "val": 7999,
+        "visible": "data.fixlocalport"
       }
   ],
 

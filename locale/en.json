@@ -19,6 +19,8 @@
     "kh":"Max value of the hard level",
     "useactions":"Customize commands",
     "value":"Value",
+    "fixlocalport":"Set static local port",
+    "localport":"Static local port",
 
     "actions":"Commands",
     "action":"Commands"

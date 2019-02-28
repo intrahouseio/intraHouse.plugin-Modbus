@@ -68,7 +68,12 @@ function parseMessageFromServer(message) {
       }
       if (message.config) {
         plugin.setConfig(message.config);
-        next();
+        if (plugin.config && plugin.config.length > 0) {
+            next();
+        } else  {
+           plugin.log('Empty channels list!');
+           process.exit(5);
+        }
       }
       break;
 

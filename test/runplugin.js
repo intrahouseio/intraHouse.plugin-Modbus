@@ -19,7 +19,9 @@ ps.on("message", mes => {
             hex: 0,
             bo16: "be",
             bo32: "be",
-            maxreadlen: 240
+            maxreadlen: 240,
+            fixlocalport:true,
+            localport:7999
           }
         });
         break;
