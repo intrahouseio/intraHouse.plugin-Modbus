@@ -21,6 +21,8 @@
     "value":"Значение",
     "fixlocalport":"Фиксировать порт на плагине",
     "localport":"Порт на плагине",
+    "rtutcp":"Modbus RTU=>TCP (буферизация, преобразование пакетов RTU)",
+    "rtuOverTcp":"Modbus RTU over TCP (без преобразования пакетов RTU)",
 
     "actions":"Команды",
     "action":"Команда"

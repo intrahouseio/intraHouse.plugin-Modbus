@@ -21,6 +21,8 @@
     "value":"Value",
     "fixlocalport":"Set static local port",
     "localport":"Static local port",
+    "rtutcp":"Modbus RTU=>TCP",
+    "rtuOverTcp":"Modbus RTU over TCP",
 
     "actions":"Commands",
     "action":"Commands"
