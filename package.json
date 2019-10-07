@@ -1,6 +1,6 @@
 {
   "name": "modbus",
-  "version": "0.0.1",
+  "version": "0.0.13",
   "description": "MODBUS Master for intraHouse Cherry",
   "main": "modbus.js",
   "dependencies": {
