@@ -25,7 +25,7 @@
         },
         {
           "id": "rtu",
-          "name": "RTU"
+          "name": "Modbus RTU"
         }
       ],
       "val": "tcp"
