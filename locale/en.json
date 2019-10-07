@@ -23,6 +23,10 @@
     "localport":"Static local port",
     "rtutcp":"Modbus RTU=>TCP",
     "rtuOverTcp":"Modbus RTU over TCP",
+    "baudRate": "Baud rate, baud/s",
+    "parity": "Parity",
+    "dataBits": "Data bits",
+    "stopBits": "Stop bits",
 
     "actions":"Commands",
     "action":"Commands"

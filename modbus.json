@@ -54,16 +54,58 @@
       "val": "/dev/ttyUSB0",
       "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
     },
-
     {
       "name": "baudRate",
-      "note": "baudRate",
-      "val": 9600,
-      "type": "number"
+      "note": "$baudRate",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "300",
+          "name": "300"
+        },
+        {
+          "id": "600",
+          "name": "600"
+        },
+        {
+          "id": "1200",
+          "name": "1200"
+        },
+        {
+          "id": "2400",
+          "name": "2400"
+        },
+        {
+          "id": "4800",
+          "name": "4800"
+        },
+        {
+          "id": "9600",
+          "name": "9600"
+        },
+        {
+          "id": "19200",
+          "name": "19200"
+        },
+        {
+          "id": "38400",
+          "name": "38400"
+        },
+        {
+          "id": "57600",
+          "name": "57600"
+        },
+        {
+          "id": "115200",
+          "name": "115200"
+        }
+      ],
+      "val": "9600",
+      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
     },
     {
       "name": "parity",
-      "note": "parity",
+      "note": "$parity",
       "type": "droplist",
       "data": [
         {
@@ -75,33 +117,28 @@
           "name": "even"
         },
         {
-          "id": "mark",
-          "name": "mark"
-        },
-        {
           "id": "odd",
           "name": "odd"
-        },
-        {
-          "id": "space",
-          "name": "space"
         }
       ],
-      "val": "even"
+      "val": "even",
+      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
     },
 
     {
       "name": "dataBits",
-      "note": "dataBits",
+      "note": "$dataBits",
       "val": 8,
-      "type": "number"
+      "type": "number",
+      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
     },
 
     {
       "name": "stopBits",
-      "note": "stopBits",
+      "note": "$stopBits",
       "val": 1,
-      "type": "number"
+      "type": "number",
+      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
     },
 
     {

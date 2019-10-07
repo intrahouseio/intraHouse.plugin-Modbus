@@ -23,6 +23,10 @@
     "localport":"Порт на плагине",
     "rtutcp":"Modbus RTU=>TCP (буферизация, преобразование пакетов RTU)",
     "rtuOverTcp":"Modbus RTU over TCP (без преобразования пакетов RTU)",
+    "baudRate": "Скорость, бод/с",
+    "parity": "Контроль четности",
+    "dataBits": "Биты данных",
+    "stopBits": "Стоп-биты",
 
     "actions":"Команды",
     "action":"Команда"
