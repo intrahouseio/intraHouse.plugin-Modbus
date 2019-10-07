@@ -3,16 +3,19 @@
 
 Используется библиотека modbus-serial: https://github.com/yaacov/node-modbus-serial
 
-На данный момент реализовано:
+Реализованы клиенты:
 
-**Modbus TCP** - стандартный протокол.
+**Client TCP**
 
-Реализация RTU через TCP. Здесь возможно два варианта:
+* Modbus TCP: 
+  Пакеты должны иметь MBAP Header - Modbus Application Header 
 
-1. **Modbus RTU over TCP** - пакеты RTU передаются в TCP сокет без преобразования.
-   
-2. **Modbus RTU=>TCP (буферизация)** - пакеты RTU преобразуются шлюзом в Modbus TCP: убирается SlaveId и CRC, добавляется MBAP Header - Modbus Application Header. 
+* Modbus RTU over TCP: 
+  Исп, если пакеты RTU передаются в TCP сокет без преобразования.
 
-Таким образом, если шлюз преобразовывает пакеты, то можно использовать **Modbus TCP**. 
-Вариант  **Modbus RTU=>TCP (буферизация)** используется, если Serial устройства медленные, при этом используется MBAP 
+* Modbus RTU=>TCP (буферизация): 
+  Исп. при наличии шлюза, преобразующего пакеты RTU в TCP, но вариант 1 не работает (Serial устройства медленные)
 
+**Client RTU**
+
+* Modbus RTU: Over serial line.
