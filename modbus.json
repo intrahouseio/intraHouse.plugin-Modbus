@@ -16,12 +16,16 @@
           "name": "Modbus TCP"
         },
         {
-            "id": "rtuOverTcp",
-            "name": "$rtuOverTcp"
+          "id": "rtuOverTcp",
+          "name": "$rtuOverTcp"
         },
         {
-            "id": "rtutcp",
-            "name": "$rtutcp"
+          "id": "rtutcp",
+          "name": "$rtutcp"
+        },
+        {
+          "id": "rtu",
+          "name": "RTU"
         }
       ],
       "val": "tcp"
@@ -32,7 +36,7 @@
       "note": "IP",
       "type": "string",
       "val": "192.168.0.250",
-      "visible": "data.transport && data.transport.substr(0,3) == \"tcp\""
+      "visible": "data.transport && data.transport.substr(0,3) != \"rtu\""
     },
 
     {
@@ -40,15 +44,64 @@
       "note": "$port",
       "type": "number",
       "val": "502",
-      "visible": "data.transport && data.transport.substr(0,3) == \"tcp\""
+      "visible": "data.transport && data.transport.substr(0,3) != \"rtu\""
     },
 
     {
       "name": "serialport",
       "note": "$port",
       "type": "STRING",
-      "val": "COM1",
-      "visible": "data.transport && data.transport.substr(0,3) == \"ser\""
+      "val": "/dev/ttyUSB0",
+      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
+    },
+
+    {
+      "name": "baudRate",
+      "note": "baudRate",
+      "val": 9600,
+      "type": "number"
+    },
+    {
+      "name": "parity",
+      "note": "parity",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "none",
+          "name": "none"
+        },
+        {
+          "id": "even",
+          "name": "even"
+        },
+        {
+          "id": "mark",
+          "name": "mark"
+        },
+        {
+          "id": "odd",
+          "name": "odd"
+        },
+        {
+          "id": "space",
+          "name": "space"
+        }
+      ],
+      "val": "even"
+    },
+
+    {
+      "name": "dataBits",
+      "note": "dataBits",
+      "val": 8,
+      "type": "number"
+    },
+
+    {
+      "name": "stopBits",
+      "note": "stopBits",
+      "val": 1,
+      "type": "number"
     },
 
     {
@@ -64,69 +117,68 @@
       "val": 200,
       "type": "number"
     },
-    
+
     {
-        "name": "maxreadlen",
-        "note": "$maxreadlen",
-        "val": 250,
-        "type": "number"
+      "name": "maxreadlen",
+      "note": "$maxreadlen",
+      "val": 250,
+      "type": "number"
     },
 
-
     {
-        "name": "bo16",
-        "note": "$bo16",
-        "type": "droplist",
-        "data": [
-          {
-            "id": "be",
-            "name": "Big-Endian В1B2 => B1B2"
-          },
-          {
-            "id": "le",
-            "name": "Little-Endian В1B2 => B2B1"
-          }
-        ],
-        "val": "be"
-      },
-      {
-        "name": "bo32",
-        "note": "$bo32",
-        "type": "droplist",
-        "data": [
-          {
-            "id": "be",
-            "name": "Big-Endian B1B2B3B4 => B1B2B3B4"
-          },
-          {
-            "id": "sw",
-            "name": "Big-Endian swap B1B2B3B4 => B3B4B1B2"
-          },
-          {
-            "id": "le",
-            "name": "Little-Endian B1B2B3B4 => B4B3B2B1"
-          },
-          {
-            "id": "sb",
-            "name": "Little-Endian swap B1B2B3B4 => B2B1B4B3"
-          }
-        ],
-        "val": "sw"
-      },
-      {
-        "name": "fixlocalport",
-        "note": "$fixlocalport",
-        "type": "cb",
-        "val": false,
-        "visible": "data.transport && data.transport.substr(0,3) == \"tcp\""
-      },
-      {
-        "name": "localport",
-        "note": "$localport",
-        "type": "number",
-        "val": 7999,
-        "visible": "data.fixlocalport"
-      }
+      "name": "bo16",
+      "note": "$bo16",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "name": "Big-Endian В1B2 => B1B2"
+        },
+        {
+          "id": "le",
+          "name": "Little-Endian В1B2 => B2B1"
+        }
+      ],
+      "val": "be"
+    },
+    {
+      "name": "bo32",
+      "note": "$bo32",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "name": "Big-Endian B1B2B3B4 => B1B2B3B4"
+        },
+        {
+          "id": "sw",
+          "name": "Big-Endian swap B1B2B3B4 => B3B4B1B2"
+        },
+        {
+          "id": "le",
+          "name": "Little-Endian B1B2B3B4 => B4B3B2B1"
+        },
+        {
+          "id": "sb",
+          "name": "Little-Endian swap B1B2B3B4 => B2B1B4B3"
+        }
+      ],
+      "val": "sw"
+    },
+    {
+      "name": "fixlocalport",
+      "note": "$fixlocalport",
+      "type": "cb",
+      "val": false,
+      "visible": "data.transport && data.transport.substr(0,3) == \"tcp\""
+    },
+    {
+      "name": "localport",
+      "note": "$localport",
+      "type": "number",
+      "val": 7999,
+      "visible": "data.fixlocalport"
+    }
   ],
 
   "chpattern": [
@@ -141,14 +193,14 @@
         { "id": "AO", "name": "AO - Analog  Output" },
         { "id": "EA", "name": "EA - Enum (switch)" }
       ],
-      "order":1
+      "order": 1
     },
 
     {
       "name": "unitid",
       "note": "$unitid",
       "type": "number",
-      "order":2,
+      "order": 2,
       "val": 1
     },
 
@@ -156,8 +208,8 @@
       "name": "address",
       "note": "$address",
       "type": "STRING",
-      "order":10,
-      "val":  "0x0000"
+      "order": 10,
+      "val": "0x0000"
     },
 
     {
@@ -179,7 +231,7 @@
           "id": "int16",
           "name": "INT16 2 байта"
         },
-      
+
         {
           "id": "uint16",
           "name": "UINT16 2 байта"
@@ -189,7 +241,7 @@
           "id": "int32",
           "name": "INT32 4 байта"
         },
-      
+
         {
           "id": "uint32",
           "name": "UINT32 4 байта"
@@ -200,160 +252,165 @@
           "name": "FLOAT 4 байта"
         }
       ],
-      "order":11,
+      "order": 11,
       "val": "int16"
-      
     },
     {
-        "name": "fcr",
-        "note": "$fcr",
-        "type": "droplist",
-        "data": [
-            {
-              "id": "1",
-              "name": "FC1 - read, FC5 - write",
-              "visible": "data.vartype == \"bool\""
-            },
-    
-            {
-                "id": "2",
-                "name": "FC2 - read",
-                "visible": "data.vartype == \"bool\""
-            },
-            {
-                "id": "3",
-                "name": "FC3 - read, FC6 - write",
-                "visible": "data.vartype != \"bool\""
-            },
-            {
-                "id": "4",
-                "name": "FC4 - read",
-                "visible": "data.vartype != \"bool\""
-             }
-        ],  
-        "order":12,  
-        "val": "3"
+      "name": "fcr",
+      "note": "$fcr",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "1",
+          "name": "FC1 - read, FC5 - write",
+          "visible": "data.vartype == \"bool\""
+        },
+
+        {
+          "id": "2",
+          "name": "FC2 - read",
+          "visible": "data.vartype == \"bool\""
+        },
+        {
+          "id": "3",
+          "name": "FC3 - read, FC6 - write",
+          "visible": "data.vartype != \"bool\""
+        },
+        {
+          "id": "4",
+          "name": "FC4 - read",
+          "visible": "data.vartype != \"bool\""
+        }
+      ],
+      "order": 12,
+      "val": "3"
     },
     {
-        "name": "gr",
-        "note": "$gr",
-        "type": "cb",
-        "order":13,  
-        "val": true
+      "name": "gr",
+      "note": "$gr",
+      "type": "cb",
+      "order": 13,
+      "val": true
     },
     {
-        "name": "usek",
-        "note": "$usek",
-        "type": "cb",
-        "order":14
+      "name": "usek",
+      "note": "$usek",
+      "type": "cb",
+      "order": 14
     },
     {
-        "name": "ks0",
-        "note": "$ks0",
-        "type": "STRING",
-        "order":15,  
-        "visible": "data.usek"
+      "name": "ks0",
+      "note": "$ks0",
+      "type": "STRING",
+      "order": 15,
+      "visible": "data.usek"
     },
     {
-        "name": "ks",
-        "note": "$ks",
-        "type": "STRING",
-        "order":16,  
-        "visible": "data.usek"
+      "name": "ks",
+      "note": "$ks",
+      "type": "STRING",
+      "order": 16,
+      "visible": "data.usek"
     },
     {
-        "name": "kh0",
-        "note": "$kh0",
-        "type": "STRING",
-        "order":17,  
-        "visible": "data.usek"
+      "name": "kh0",
+      "note": "$kh0",
+      "type": "STRING",
+      "order": 17,
+      "visible": "data.usek"
     },
     {
-        "name": "kh",
-        "note": "$kh",
-        "type": "STRING",
-        "order":18,  
-        "visible": "data.usek"
+      "name": "kh",
+      "note": "$kh",
+      "type": "STRING",
+      "order": 18,
+      "visible": "data.usek"
     },
     {
-        "name": "useactions",
-        "note": "$useactions",
-        "type": "cb",
-        "order":19,  
-        "val": false
+      "name": "useactions",
+      "note": "$useactions",
+      "type": "cb",
+      "order": 19,
+      "val": false
     },
     {
-        "name": "actions",
-        "tabnote": "$actions",
-        "note": "$action",
-        "type": "multi",
-        "visible": "data.useactions && (data.desc == \"DO\" || data.desc == \"AO\")",
-        "data": {
-          "scheme": {
-            "act": { "name": "$action", "type": "droplist", "order": 0, "data":[{"id":"on", "name":"on"}, {"id":"off", "name":"off"},{"id":"set", "name":"set"}] },
-            "address":{
-                "name": "$address",
-                "type": "STRING",
-                "order": 1,
-                "val": 0
-              },
-          
-              "vartype":{
-                "name": "$vartype",
-                "type": "droplist",
-                "order": 2,
-                "data": [
-                  {
-                    "id": "bool",
-                    "name": "BOOL"
-                  },
-          
-                  {
-                    "id": "uint8",
-                    "name": "BYTE 1 байт"
-                  },
-          
-                  {
-                    "id": "int16",
-                    "name": "INT16 2 байта"
-                  },
-                
-                  {
-                    "id": "uint16",
-                    "name": "UINT16 2 байта"
-                  },
-          
-                  {
-                    "id": "int32",
-                    "name": "INT32 4 байта"
-                  },
-                
-                  {
-                    "id": "uint32",
-                    "name": "UINT32 4 байта"
-                  },
-          
-                  {
-                    "id": "float",
-                    "name": "FLOAT 4 байта"
-                  }]
-            },
-            "value":{
-                "name": "$value",
-                "type": "STRING",
-                "order": 3,
-                "visible": "data.act != \"set\"",
-                "val": ""
-            }
+      "name": "actions",
+      "tabnote": "$actions",
+      "note": "$action",
+      "type": "multi",
+      "visible": "data.useactions && (data.desc == \"DO\" || data.desc == \"AO\")",
+      "data": {
+        "scheme": {
+          "act": {
+            "name": "$action",
+            "type": "droplist",
+            "order": 0,
+            "data": [{ "id": "on", "name": "on" }, { "id": "off", "name": "off" }, { "id": "set", "name": "set" }]
           },
-          "default": {
-            "act": "on",
-            "address": 0,
-            "vartype": "int16",
-            "value": ""
+          "address": {
+            "name": "$address",
+            "type": "STRING",
+            "order": 1,
+            "val": 0
+          },
+
+          "vartype": {
+            "name": "$vartype",
+            "type": "droplist",
+            "order": 2,
+            "data": [
+              {
+                "id": "bool",
+                "name": "BOOL"
+              },
+
+              {
+                "id": "uint8",
+                "name": "BYTE 1 байт"
+              },
+
+              {
+                "id": "int16",
+                "name": "INT16 2 байта"
+              },
+
+              {
+                "id": "uint16",
+                "name": "UINT16 2 байта"
+              },
+
+              {
+                "id": "int32",
+                "name": "INT32 4 байта"
+              },
+
+              {
+                "id": "uint32",
+                "name": "UINT32 4 байта"
+              },
+
+              {
+                "id": "float",
+                "name": "FLOAT 4 байта"
+              }
+            ]
+          },
+          "value": {
+            "name": "$value",
+            "type": "STRING",
+            "order": 3,
+            "visible": "data.act != \"set\"",
+            "val": ""
           }
+        },
+        "default": {
+          "act": "on",
+          "address": 0,
+          "vartype": "int16",
+          "value": ""
         }
       }
+    }
   ],
 
   "chdefault": {
@@ -371,8 +428,7 @@
     "kh0": 0,
     "kh": 100,
     "useactions": false,
-    "actions":[ { "act": "on", "address": "0x0000", "vartype": "bool", "value": ""}]
-
+    "actions": [{ "act": "on", "address": "0x0000", "vartype": "bool", "value": "" }]
   },
 
   "genrules": {
@@ -393,7 +449,7 @@
     },
 
     "EA": {
-        "cl": "ActorE"
+      "cl": "ActorE"
     }
   },
 

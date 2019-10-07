@@ -1,6 +1,8 @@
 
 ## intraHouse.plugin-Modbus
 
+Используется библиотека modbus-serial: https://github.com/yaacov/node-modbus-serial
+
 На данный момент реализовано:
 
 **Modbus TCP** - стандартный протокол.
