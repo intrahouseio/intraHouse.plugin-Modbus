@@ -1,6 +1,6 @@
 {
   "name": "modbus",
-  "description": "MODBUS Master ",
+  "description": "Modbus Master plugin for IH",
   "module": "modbus.js",
   "single": 0,
   "restartOnChannelsChange": 1,
@@ -16,21 +16,20 @@
           "name": "Modbus TCP"
         },
         {
+          "id": "rtu",
+          "name": "Modbus RTU"
+        },
+        {
           "id": "rtuOverTcp",
           "name": "$rtuOverTcp"
         },
         {
           "id": "rtutcp",
           "name": "$rtutcp"
-        },
-        {
-          "id": "rtu",
-          "name": "Modbus RTU"
         }
       ],
       "val": "tcp"
     },
-
     {
       "name": "host",
       "note": "IP",
