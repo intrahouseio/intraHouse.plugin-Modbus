@@ -3,7 +3,7 @@
   "description": "Modbus Master plugin for IH",
   "module": "modbus.js",
   "single": 0,
-  "restartOnChannelsChange": 1,
+  "restartOnChannelsChange": 0,
 
   "params": [
     {

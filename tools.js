@@ -3,8 +3,7 @@
  */
 const util = require('util');
 
-
-// exports.readValue = readValue;
+exports.parseBuffer = parseBuffer;
 exports.getPolls = getPolls;
 exports.getPollArray = getPollArray;
 exports.getDataFromResponse = getDataFromResponse;
@@ -130,135 +129,107 @@ function getPollArray(polls) {
   return polls.map((item, index) => index);
 }
 
-function readValue(buffer, item) {
+function parseBuffer(buffer, item) {
   let buf;
   let i1;
   let i2;
   let offset = item.widx;
   let vartype = item.vartype;
-  let result;
 
   switch (vartype) {
     case 'bool':
       return getBitValue(buffer, offset);
-
     case 'byte':
-      result = buffer.readUInt8(offset * 2 + 1);
-      break;
+      return buffer.readUInt8(offset * 2 + 1);
     case 'uint8':
-      result = buffer.readUInt8(offset * 2);
-      break;
+      return buffer.readUInt8(offset * 2);
     case 'uint16be':
-      result = buffer.readUInt16BE(offset * 2);
-      break;
+      return buffer.readUInt16BE(offset * 2);
     case 'uint16le':
-      result = buffer.readUInt16LE(offset * 2);
-      break;
+      return buffer.readUInt16LE(offset * 2);
     case 'int16be':
-      result = buffer.readInt16BE(offset * 2);
-      break;
+      return buffer.readInt16BE(offset * 2);
     case 'int16le':
-      result = buffer.readInt16LE(offset * 2);
-      break;
+      return buffer.readInt16LE(offset * 2);
     case 'uint32be':
-      result = buffer.readUInt32BE(offset * 2);
-      break;
+      return buffer.readUInt32BE(offset * 2);
     case 'uint32le':
-      result = buffer.readUInt32LE(offset * 2);
-      break;
-
+      return buffer.readUInt32LE(offset * 2);
     case 'uint32sw':
       buf = new Buffer(4);
       buf[0] = buffer[offset * 2 + 2];
       buf[1] = buffer[offset * 2 + 3];
       buf[2] = buffer[offset * 2 + 0];
       buf[3] = buffer[offset * 2 + 1];
-      result = buf.readUInt32BE(0);
-      break;
+      return buf.readUInt32BE(0);
     case 'uint32sb':
       buf = new Buffer(4);
       buf[0] = buffer[offset * 2 + 1];
       buf[1] = buffer[offset * 2 + 0];
       buf[2] = buffer[offset * 2 + 3];
       buf[3] = buffer[offset * 2 + 2];
-      result = buf.readUInt32BE(0);
-      break;
+      return buf.readUInt32BE(0);
     case 'int32be':
-      result = buffer.readInt32BE(offset * 2);
-      break;
+      return buffer.readInt32BE(offset * 2);
     case 'int32le':
-      result = buffer.readInt32LE(offset * 2);
-      break;
+      return buffer.readInt32LE(offset * 2);
     case 'int32sw':
       buf = new Buffer(4);
       buf[0] = buffer[offset * 2 + 2];
       buf[1] = buffer[offset * 2 + 3];
       buf[2] = buffer[offset * 2 + 0];
       buf[3] = buffer[offset * 2 + 1];
-      result = buf.readInt32BE(0);
-      break;
+      return buf.readInt32BE(0);
     case 'int32sb':
       buf = new Buffer(4);
       buf[0] = buffer[offset * 2 + 1];
       buf[1] = buffer[offset * 2 + 0];
       buf[2] = buffer[offset * 2 + 3];
       buf[3] = buffer[offset * 2 + 2];
-      result = buf.readInt32BE(0);
-      break;
+      return buf.readInt32BE(0);
     case 'uint64be':
-      result =
-        buffer.readUInt32BE(offset * 2) * 0x100000000 +
-        buffer.readUInt32BE(offset * 2 + 4);
-      break;
+      return (buffer.readUInt32BE(offset * 2) * 0x100000000 + buffer.readUInt32BE(offset * 2 + 4));
     case 'uint64le':
-      result =
-        buffer.readUInt32LE(offset * 2) +
-        buffer.readUInt32LE(offset * 2 + 4) * 0x100000000;
-      break;
+      return (buffer.readUInt32LE(offset * 2) + buffer.readUInt32LE(offset * 2 + 4) * 0x100000000)
     case 'int64be':
       i1 = buffer.readInt32BE(offset * 2);
       i2 = buffer.readUInt32BE(offset * 2 + 4);
       // <<32 does not work
-      result = i1 >= 0 ? i1 * 0x100000000 + i2 : i1 * 0x100000000 - i2;
-      break;
+      return i1 >= 0 ? i1 * 0x100000000 + i2 : i1 * 0x100000000 - i2;
     case 'int64le':
       i2 = buffer.readUInt32LE(offset * 2);
       i1 = buffer.readInt32LE(offset * 2 + 4);
-      result = i1 >= 0 ? i1 * 0x100000000 + i2 : i1 * 0x100000000 - i2;
-      break;
-
+      return i1 >= 0 ? i1 * 0x100000000 + i2 : i1 * 0x100000000 - i2;
     case 'floatbe':
-      result = buffer.readFloatBE(offset * 2);
-      break;
+      return buffer.readFloatBE(offset * 2);
     case 'floatle':
-      result = buffer.readFloatLE(offset * 2);
-      break;
+      return buffer.readFloatLE(offset * 2);
     case 'floatsw':
       buf = new Buffer(4);
       buf[0] = buffer[offset * 2 + 2];
       buf[1] = buffer[offset * 2 + 3];
       buf[2] = buffer[offset * 2 + 0];
       buf[3] = buffer[offset * 2 + 1];
-      result = buf.readFloatBE(0);
-      break;
+      return buf.readFloatBE(0);
     case 'floatsb':
       buf = new Buffer(4);
       buf[0] = buffer[offset * 2 + 1];
       buf[1] = buffer[offset * 2 + 0];
       buf[2] = buffer[offset * 2 + 3];
       buf[3] = buffer[offset * 2 + 2];
-      result = buf.readFloatBE(0);
-      break;
+      return buf.readFloatBE(0);
     case 'doublebe':
-      result = buffer.readDoubleBE(offset * 2);
-      break;
+      return buffer.readDoubleBE(offset * 2);
     case 'doublele':
-      result = buffer.readDoubleLE(offset * 2);
-      break;
+      return buffer.readDoubleLE(offset * 2);
     default:
       console.log('Invalid type: ' + vartype);
       return 0;
   }
+}
+
+function readValue(buffer, item) {
+  let result = parseBuffer(buffer, item);
 
   return (item.usek) ? transformHtoS(result, item) : result;
 }

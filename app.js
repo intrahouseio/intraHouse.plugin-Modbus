@@ -13,23 +13,14 @@ module.exports = {
     this.plugin = plugin;
 
     this.plugin.onAct(this.parseAct.bind(this));
+    this.plugin.onCommand(async (data) => await this.parseCommand(data));
+    this.plugin.channels.onChange(() => this.updateChannels(true));
 
     process.on('exit', this.terminatePlugin.bind(this));
     process.on('SIGTERM', this.terminatePlugin.bind(this));
 
     try {
-      for (item of this.channels) {
-        item.unitid = parseInt(item.unitid);
-        item.address = parseInt(item.address);
-        item.vartype = this.getVartype(item.vartype);
-      }
-
-      this.polls = tools.getPolls(this.channels, this.params);
-      this.plugin.log(`Polls = ${util.inspect(this.polls)}`, 2);
-
-      this.queue = tools.getPollArray(this.polls);
-
-      this.sendTime = 0;
+      await this.updateChannels(false);
 
       let connectionStr = '';
 
@@ -59,42 +50,101 @@ module.exports = {
   },
 
   parseAct(message) {
-    let data = [];
-
     try {
       for (item of message.data) {
         let id = item.id;
         let command = item.command;
-    
+
         if (!command) {
           if (item.prop == 'set') {
             item.command = 'set';
           }
         }
-    
+
         item.address = parseInt(item.address);
         item.address = parseInt(item.address);
         item.value = parseInt(item.value);
-    
+
         if (item.usek) {
           item.value = tools.transformStoH(item.value, item);
         }
-    
+
         item.vartype = this.getVartype(item.vartype);
-    
+
         if (id && command) {
           this.queue.unshift(item);
-    
-          this.plugin.log(`Command to send: ${util.inspect(this.queue)}`, 2);
+          this.plugin.log(`Command to send: ${util.inspect(this.queue)}`);
         }
-      }
-
-      if (data.length > 0) {
-        this.plugin.sendData(data);
       }
     } catch (err) {
       this.checkError(err);
     }
+  },
+
+  async parseCommand(message) {
+    this.plugin.log(`Command '${message.command}' received. Data: ${util.inspect(message)}`);
+    let payload = [];
+
+    try {
+      switch (message.command) {
+        case 'read':
+          if (message.data !== undefined) {
+            for (item of message.data) {
+              payload.push(Object.assign({ value: await this.readValueCommand(item) }, item));
+            }
+          }
+
+          this.plugin.sendResponse(Object.assign({ payload: payload }, message), 1);
+          break;
+
+        case 'write':
+          if (message.data !== undefined) {
+            for (item of message.data) {
+              payload.push(await this.writeValueCommand(item));
+            }
+          }
+
+          this.plugin.sendResponse(Object.assign({ payload: payload }, message), 1);
+          break;
+
+        default:
+          break;
+      }
+    } catch (err) {
+      this.plugin.sendResponse(Object.assign({ payload: message }, message), 0);
+      this.checkError(err);
+    }
+  },
+
+  async updateChannels(getChannels) {
+    if (this.queue !== undefined) {
+      await this.sendNext(true);
+    }
+
+    this.plugin.log(`Requested channels update. Get channels: ${getChannels ? 'yes' : 'no'}`);
+
+    if (getChannels === true) {
+      this.channels = await this.plugin.channels.get();
+    }
+
+    if (this.channels.length === 0) {
+      this.plugin.log(`Channels do not exist!`);
+      this.terminatePlugin();
+      process.exit(8);
+    }
+
+    for (item of this.channels) {
+      item.unitid = parseInt(item.unitid);
+      item.address = parseInt(item.address);
+      item.vartype = this.getVartype(item.vartype);
+    }
+
+    this.polls = tools.getPolls(this.channels, this.params);
+    this.plugin.log(`Polls = ${util.inspect(this.polls)}`, 2);
+
+    this.queue = tools.getPollArray(this.polls);
+
+    this.sendTime = 0;
   },
 
   async connect() {
@@ -154,19 +204,33 @@ module.exports = {
     }
   },
 
-  async read({ unitid, fcr, address, length, ref }) {
-    this.client.setID(unitid);
-    this.plugin.log(`READ: unitId = ${unitid}, FC = ${fcr}, address = ${this.showAddress(address)}, length = ${length}`);
+  async read(item, allowSendNext) {
+    this.client.setID(item.unitid);
+    this.plugin.log(`READ: unitId = ${item.unitid}, FC = ${item.fcr}, address = ${this.showAddress(item.address)}, length = ${item.length}`, 1);
 
     try {
-      let res = await this.modbusReadCommand(fcr, address, length);
+      let res = await this.modbusReadCommand(item.fcr, item.address, item.length);
 
-      this.plugin.sendData(tools.getDataFromResponse(res.buffer, ref));
+      this.plugin.sendData(tools.getDataFromResponse(res.buffer, item.ref));
       this.plugin.log(res.buffer, 2);
 
-      await sleep(this.params.polldelay || 1);
-      await this.sendNext();
+      if (allowSendNext !== undefined && allowSendNext === true) {
+        await sleep(this.params.polldelay || 1);
+        await this.sendNext();
+      }
+    } catch (err) {
+      this.checkError(err);
+    }
+  },
 
+  async readValueCommand(item) {
+    this.client.setID(item.unitid);
+    this.plugin.log(`READ: unitId = ${item.unitid}, FC = ${item.fcr}, address = ${this.showAddress(item.address)}, length = ${item.length}`, 1);
+
+    try {
+      let res = await this.modbusReadCommand(item.fcr, item.address, item.length);
+
+      return tools.parseBuffer(res.buffer, { widx: item.offset, vartype: item.vartype });
     } catch (err) {
       this.checkError(err);
     }
@@ -193,7 +257,7 @@ module.exports = {
     }
   },
 
-  async write(item) {
+  async write(item, allowSendNext) {
     this.client.setID(item.unitid);
     let fcw = item.vartype == 'bool' ? 5 : 6;
 
@@ -205,9 +269,27 @@ module.exports = {
 
       // Получили ответ при записи
       this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
-      await sleep(this.plugin.polldelay || 1); // Интервал между запросами
 
-      await this.sendNext();
+      if (allowSendNext !== undefined && allowSendNext === true) {
+        await sleep(this.plugin.polldelay || 1); // Интервал между запросами
+        await this.sendNext();
+      }
+    } catch (err) {
+      this.checkError(err);
+    }
+  },
+
+  async writeValueCommand(item) {
+    this.client.setID(item.unitid);
+    let fcw = item.vartype == 'bool' ? 5 : 6;
+
+    this.plugin.log(`WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${item.value}`, 1);
+
+    try {
+      let res = await this.modbusWriteCommand(fcw, item.address, item.value);
+      this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
+
+      return res;
     } catch (err) {
       this.checkError(err);
     }
@@ -232,7 +314,7 @@ module.exports = {
     }
   },
 
-  async sendNext() {
+  async sendNext(single) {
     if (this.queue.length <= 0) {
       this.queue = tools.getPollArray(this.polls);
     }
@@ -245,10 +327,16 @@ module.exports = {
 
     this.plugin.log(`sendNext item = ${util.inspect(item)}`, 2);
 
+    let isOnce = false;
+
+    if (typeof single !== undefined && single === true) {
+      isOnce = true;
+    }
+
     if (item.command) {
-      await this.write(item);
+      await this.write(item, !isOnce);
     } else {
-      await this.read(item);
+      await this.read(item, !isOnce);
     }
   },
 
