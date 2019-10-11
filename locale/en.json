@@ -3,9 +3,11 @@
     "port":"Port",
     "timeout":"Waiting for response to request (ms)",
     "polldelay":"Interval between requests (ms)",
-    "maxreadlen":"Max number of words when reading range", 
+    "maxreadlen":"Max number of words when reading range",
+    "bo8":"Byte position in word (for 1-byte value)",
     "bo16":"Byte order for 2-byte values",
     "bo32":"Byte order for 4-byte values",
+    "bo64":"Byte order for 8-byte values",
     "unitid":"Unit ID",
     "desc":"Device type",
     "address":"Address (dec or hex)",
@@ -19,8 +21,6 @@
     "kh":"Max value of the hard level",
     "useactions":"Customize commands",
     "value":"Value",
-    "fixlocalport":"Set static local port",
-    "localport":"Static local port",
     "rtutcp":"Modbus RTU=>TCP",
     "rtuOverTcp":"Modbus RTU over TCP",
     "baudRate": "Baud rate, baud/s",
@@ -30,5 +30,4 @@
 
     "actions":"Commands",
     "action":"Commands"
-
 }

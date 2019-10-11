@@ -62,7 +62,6 @@ module.exports = {
         }
 
         item.address = parseInt(item.address);
-        item.address = parseInt(item.address);
         item.value = parseInt(item.value);
 
         if (item.usek) {
@@ -153,14 +152,8 @@ module.exports = {
     try {
       switch (this.params.transport) {
         case 'tcp':
-          options.host = this.params.host;
-
-          if (this.params.fixlocalport) {
-            options.localPort = this.params.localport;
-          }
-
           this.plugin.log(`Connecting options = ${util.inspect(options)}`, 1);
-          await this.client.connectTCP(options);
+          await this.client.connectTCP(this.params.host, options);
 
           break;
         case 'rtutcp':
@@ -181,6 +174,18 @@ module.exports = {
 
           this.plugin.log(`Connecting options = ${util.inspect(options)}`, 1);
           await this.client.connectRTUBuffered(this.params.serialport, options);
+
+          break;
+        case 'ascii':
+          options = {
+            baudRate: +this.params.baudRate,
+            parity: this.params.parity,
+            dataBits: this.params.dataBits,
+            stopBits: this.params.stopBits
+          };
+
+          this.plugin.log(`Connecting options = ${util.inspect(options)}`, 1);
+          await this.client.connectAsciiSerial(this.params.serialport, options);
 
           break;
         default:
@@ -230,7 +235,7 @@ module.exports = {
     try {
       let res = await this.modbusReadCommand(item.fcr, item.address, item.length);
 
-      return tools.parseBuffer(res.buffer, { widx: item.offset, vartype: item.vartype });
+      return tools.parseBufferRead(res.buffer, { widx: item.offset, vartype: item.vartype });
     } catch (err) {
       this.checkError(err);
     }
@@ -286,7 +291,8 @@ module.exports = {
     this.plugin.log(`WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${item.value}`, 1);
 
     try {
-      let res = await this.modbusWriteCommand(fcw, item.address, item.value);
+      let val = tools.writeValue(item.value, item);
+      let res = await this.modbusWriteCommand(fcw, item.address, val);
       this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
 
       return res;
@@ -303,8 +309,12 @@ module.exports = {
           return await this.client.writeCoil(address, value);
 
         case 6:
-          this.plugin.log(`writeRegister: address = ${this.showAddress(address)}, value = ${value}`, 1);
+          this.plugin.log(`writeSingleRegister: address = ${this.showAddress(address)}, value = ${value}`, 1);
           return await this.client.writeRegister(address, value);
+
+        case 16:
+          this.plugin.log(`writeMultipleRegisters: address = ${this.showAddress(address)}, value = ${value}`, 1);
+          return await this.client.writeRegisters(address, value);
 
         default:
           throw new Error(`Функция ${fcr} на запись не поддерживается`);
@@ -355,12 +365,20 @@ module.exports = {
   getVartype(vt) {
     let bits = vt.substr(-2, 2);
 
+    if (vt === 'int8' || vt === 'uint8') {
+      return vt + this.params.bo8;
+    }
+
     if (bits === '16') {
       return vt + this.params.bo16;
     }
 
     if (bits === '32' || vt === 'float') {
       return vt + this.params.bo32;
+    }
+
+    if (bits === '64' || vt === 'double') {
+      return vt + this.params.bo64;
     }
 
     return vt;
