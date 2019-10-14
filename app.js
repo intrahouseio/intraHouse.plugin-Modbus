@@ -14,6 +14,7 @@ module.exports = {
 
     this.plugin.onAct(this.parseAct.bind(this));
     this.plugin.onCommand(async (data) => await this.parseCommand(data));
+
     this.plugin.channels.onChange(() => this.updateChannels(true));
 
     process.on('exit', this.terminatePlugin.bind(this));
@@ -22,13 +23,8 @@ module.exports = {
     try {
       await this.updateChannels(false);
 
-      let connectionStr = '';
-
-      if (this.params.transport !== 'rtu') {
-        connectionStr = `${this.params.host}:${this.params.port}`;
-      } else {
-        connectionStr = this.params.serialPort;
-      }
+      let connectionStr = (this.params.transport !== 'rtu') ?
+        `${this.params.host}:${this.params.port}` : this.params.serialPort;
 
       this.client = new modbus();
 

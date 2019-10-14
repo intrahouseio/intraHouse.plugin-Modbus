@@ -280,6 +280,11 @@
         },
 
         {
+          "id": "boolreg",
+          "name": "Многобитовый регистр"
+        },
+
+        {
           "id": "int8",
           "name": "INT8, 1 байт"
         },
@@ -363,51 +368,58 @@
       "val": "3"
     },
     {
+      "name": "offset",
+      "note": "$offset",
+      "type": "NUMBER",
+      "order": 13,
+      "val": 0
+    },
+    {
       "name": "gr",
       "note": "$gr",
       "type": "cb",
-      "order": 13,
+      "order": 14,
       "val": true
     },
     {
       "name": "usek",
       "note": "$usek",
       "type": "cb",
-      "order": 14
+      "order": 15
     },
     {
       "name": "ks0",
       "note": "$ks0",
       "type": "STRING",
-      "order": 15,
+      "order": 16,
       "visible": "data.usek"
     },
     {
       "name": "ks",
       "note": "$ks",
       "type": "STRING",
-      "order": 16,
+      "order": 17,
       "visible": "data.usek"
     },
     {
       "name": "kh0",
       "note": "$kh0",
       "type": "STRING",
-      "order": 17,
+      "order": 18,
       "visible": "data.usek"
     },
     {
       "name": "kh",
       "note": "$kh",
       "type": "STRING",
-      "order": 18,
+      "order": 19,
       "visible": "data.usek"
     },
     {
       "name": "useactions",
       "note": "$useactions",
       "type": "cb",
-      "order": 19,
+      "order": 20,
       "val": false
     },
     {
@@ -439,6 +451,11 @@
               {
                 "id": "bool",
                 "name": "BOOL"
+              },
+
+              {
+                "id": "boolreg",
+                "name": "Многобитовый регистр"
               },
 
               {

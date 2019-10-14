@@ -13,6 +13,7 @@
     "address":"Address (dec or hex)",
     "vartype":"Type",
     "fcr":"Modbus functions",
+    "offset":"Offset",
     "gr":"Allow reading of address range",
     "usek":"Value transformation",
     "ks0":"Min value of the logic level ",
@@ -29,5 +30,5 @@
     "stopBits": "Stop bits",
 
     "actions":"Commands",
-    "action":"Commands"
+    "action":"Command"
 }
