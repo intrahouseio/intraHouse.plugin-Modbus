@@ -1,9 +1,9 @@
 {
   "name": "modbus",
-  "description": "MODBUS Master ",
+  "description": "Modbus Master plugin for IH",
   "module": "modbus.js",
   "single": 0,
-  "restartOnChannelsChange": 1,
+  "restartOnChannelsChange": 0,
 
   "params": [
     {
@@ -16,6 +16,10 @@
           "name": "Modbus TCP"
         },
         {
+          "id": "rtu",
+          "name": "Modbus RTU"
+        },
+        {
           "id": "rtuOverTcp",
           "name": "$rtuOverTcp"
         },
@@ -24,19 +28,18 @@
           "name": "$rtutcp"
         },
         {
-          "id": "rtu",
-          "name": "Modbus RTU"
+          "id": "ascii",
+          "name": "Modbus ASCII"
         }
       ],
       "val": "tcp"
     },
-
     {
       "name": "host",
       "note": "IP",
       "type": "string",
       "val": "192.168.0.250",
-      "visible": "data.transport && data.transport.substr(0,3) != \"rtu\""
+      "visible": "data.transport && data.transport !== \"rtu\" && data.transport !== \"ascii\""
     },
 
     {
@@ -44,7 +47,7 @@
       "note": "$port",
       "type": "number",
       "val": "502",
-      "visible": "data.transport && data.transport.substr(0,3) != \"rtu\""
+      "visible": "data.transport && data.transport !== \"rtu\" && data.transport !== \"ascii\""
     },
 
     {
@@ -52,7 +55,7 @@
       "note": "$port",
       "type": "STRING",
       "val": "/dev/ttyUSB0",
-      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
     },
     {
       "name": "baudRate",
@@ -101,7 +104,7 @@
         }
       ],
       "val": "9600",
-      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
     },
     {
       "name": "parity",
@@ -122,7 +125,7 @@
         }
       ],
       "val": "even",
-      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
     },
 
     {
@@ -130,7 +133,7 @@
       "note": "$dataBits",
       "val": 8,
       "type": "number",
-      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
     },
 
     {
@@ -138,7 +141,7 @@
       "note": "$stopBits",
       "val": 1,
       "type": "number",
-      "visible": "data.transport && data.transport.substr(0,3) == \"rtu\""
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
     },
 
     {
@@ -161,7 +164,22 @@
       "val": 250,
       "type": "number"
     },
-
+    {
+      "name": "bo8",
+      "note": "$bo8",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "name": "Big-Endian, В0 => B0"
+        },
+        {
+          "id": "le",
+          "name": "Little-Endian, В0 => 0B"
+        }
+      ],
+      "val": "be"
+    },
     {
       "name": "bo16",
       "note": "$bo16",
@@ -169,11 +187,11 @@
       "data": [
         {
           "id": "be",
-          "name": "Big-Endian В1B2 => B1B2"
+          "name": "Big-Endian, В1B2 => B1B2"
         },
         {
           "id": "le",
-          "name": "Little-Endian В1B2 => B2B1"
+          "name": "Little-Endian, В1B2 => B2B1"
         }
       ],
       "val": "be"
@@ -185,36 +203,38 @@
       "data": [
         {
           "id": "be",
-          "name": "Big-Endian B1B2B3B4 => B1B2B3B4"
+          "name": "Big-Endian, B1B2B3B4 => B1B2B3B4"
         },
         {
           "id": "sw",
-          "name": "Big-Endian swap B1B2B3B4 => B3B4B1B2"
+          "name": "Big-Endian, swap B1B2B3B4 => B3B4B1B2"
         },
         {
           "id": "le",
-          "name": "Little-Endian B1B2B3B4 => B4B3B2B1"
+          "name": "Little-Endian, B1B2B3B4 => B4B3B2B1"
         },
         {
           "id": "sb",
-          "name": "Little-Endian swap B1B2B3B4 => B2B1B4B3"
+          "name": "Little-Endian, swap B1B2B3B4 => B2B1B4B3"
         }
       ],
       "val": "sw"
     },
     {
-      "name": "fixlocalport",
-      "note": "$fixlocalport",
-      "type": "cb",
-      "val": false,
-      "visible": "data.transport && data.transport.substr(0,3) == \"tcp\""
-    },
-    {
-      "name": "localport",
-      "note": "$localport",
-      "type": "number",
-      "val": 7999,
-      "visible": "data.fixlocalport"
+      "name": "bo64",
+      "note": "$bo64",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "name": "Big-Endian, B1B2B3B4B5B6B7B8 => B1B2B3B4B5B6B7B8"
+        },
+        {
+          "id": "le",
+          "name": "Little-Endian, B1B2B3B4B5B6B7B8 => B8B7B6B5B4B3B2B1"
+        }
+      ],
+      "val": "be"
     }
   ],
 
@@ -260,33 +280,58 @@
         },
 
         {
+          "id": "boolreg",
+          "name": "Многобитовый регистр"
+        },
+
+        {
+          "id": "int8",
+          "name": "INT8, 1 байт"
+        },
+
+        {
           "id": "uint8",
-          "name": "BYTE 1 байт"
+          "name": "UINT8, 1 байт"
         },
 
         {
           "id": "int16",
-          "name": "INT16 2 байта"
+          "name": "INT16, 2 байта"
         },
 
         {
           "id": "uint16",
-          "name": "UINT16 2 байта"
+          "name": "UINT16, 2 байта"
         },
 
         {
           "id": "int32",
-          "name": "INT32 4 байта"
+          "name": "INT32, 4 байта"
         },
 
         {
           "id": "uint32",
-          "name": "UINT32 4 байта"
+          "name": "UINT32, 4 байта"
+        },
+
+        {
+          "id": "int64",
+          "name": "INT64, 8 байт"
+        },
+
+        {
+          "id": "uint64",
+          "name": "UINT64, 8 байт"
         },
 
         {
           "id": "float",
-          "name": "FLOAT 4 байта"
+          "name": "FLOAT, 4 байта"
+        },
+
+        {
+          "id": "double",
+          "name": "DOUBLE, 8 байт"
         }
       ],
       "order": 11,
@@ -323,51 +368,58 @@
       "val": "3"
     },
     {
+      "name": "offset",
+      "note": "$offset",
+      "type": "NUMBER",
+      "order": 13,
+      "val": 0
+    },
+    {
       "name": "gr",
       "note": "$gr",
       "type": "cb",
-      "order": 13,
+      "order": 14,
       "val": true
     },
     {
       "name": "usek",
       "note": "$usek",
       "type": "cb",
-      "order": 14
+      "order": 15
     },
     {
       "name": "ks0",
       "note": "$ks0",
       "type": "STRING",
-      "order": 15,
+      "order": 16,
       "visible": "data.usek"
     },
     {
       "name": "ks",
       "note": "$ks",
       "type": "STRING",
-      "order": 16,
+      "order": 17,
       "visible": "data.usek"
     },
     {
       "name": "kh0",
       "note": "$kh0",
       "type": "STRING",
-      "order": 17,
+      "order": 18,
       "visible": "data.usek"
     },
     {
       "name": "kh",
       "note": "$kh",
       "type": "STRING",
-      "order": 18,
+      "order": 19,
       "visible": "data.usek"
     },
     {
       "name": "useactions",
       "note": "$useactions",
       "type": "cb",
-      "order": 19,
+      "order": 20,
       "val": false
     },
     {
@@ -402,33 +454,58 @@
               },
 
               {
+                "id": "boolreg",
+                "name": "Многобитовый регистр"
+              },
+
+              {
+                "id": "int8",
+                "name": "INT8, 1 байт"
+              },
+
+              {
                 "id": "uint8",
-                "name": "BYTE 1 байт"
+                "name": "UINT8, 1 байт"
               },
 
               {
                 "id": "int16",
-                "name": "INT16 2 байта"
+                "name": "INT16, 2 байта"
               },
 
               {
                 "id": "uint16",
-                "name": "UINT16 2 байта"
+                "name": "UINT16, 2 байта"
               },
 
               {
                 "id": "int32",
-                "name": "INT32 4 байта"
+                "name": "INT32, 4 байта"
               },
 
               {
                 "id": "uint32",
-                "name": "UINT32 4 байта"
+                "name": "UINT32, 4 байта"
+              },
+
+              {
+                "id": "int64",
+                "name": "INT64, 8 байт"
+              },
+
+              {
+                "id": "uint64",
+                "name": "UINT64, 8 байт"
               },
 
               {
                 "id": "float",
-                "name": "FLOAT 4 байта"
+                "name": "FLOAT, 4 байта"
+              },
+
+              {
+                "id": "double",
+                "name": "DOUBLE, 8 байт"
               }
             ]
           },

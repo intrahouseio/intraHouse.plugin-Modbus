@@ -1,10 +1,10 @@
 {
   "name": "modbus",
-  "version": "0.0.13",
-  "description": "MODBUS Master for intraHouse Cherry",
+  "version": "0.4.5",
+  "description": "Modbus Master plugin for IH",
   "main": "modbus.js",
   "dependencies": {
-    "modbus-serial": "^7.2.3"
+    "modbus-serial": "^7.7.2"
   },
   "devDependencies": {},
   "author": "INTRA",
