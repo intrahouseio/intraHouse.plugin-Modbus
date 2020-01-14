@@ -1,6 +1,6 @@
 const util = require('util');
 const tools = require('./tools');
-const modbus = require('modbus-serial');
+const Modbus = require('modbus-serial');
 
 const networkErrors = ['ESOCKETTIMEDOUT', 'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EHOSTUNREACH'];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -13,7 +13,7 @@ module.exports = {
     this.plugin = plugin;
 
     this.plugin.onAct(this.parseAct.bind(this));
-    this.plugin.onCommand(async (data) => await this.parseCommand(data));
+    this.plugin.onCommand(async data => this.parseCommand(data));
 
     this.plugin.channels.onChange(() => this.updateChannels(true));
 
@@ -23,10 +23,10 @@ module.exports = {
     try {
       await this.updateChannels(false);
 
-      let connectionStr = (this.params.transport !== 'rtu') ?
-        `${this.params.host}:${this.params.port}` : this.params.serialPort;
+      let connectionStr =
+        this.params.transport !== 'rtu' ? `${this.params.host}:${this.params.port}` : this.params.serialPort;
 
-      this.client = new modbus();
+      this.client = new Modbus();
 
       this.client.setTimeout(this.params.timeout);
 
@@ -47,7 +47,8 @@ module.exports = {
 
   parseAct(message) {
     try {
-      for (item of message.data) {
+      // for (const item of message.data) {
+      message.data.forEach(item => {
         let id = item.id;
         let command = item.command;
 
@@ -70,7 +71,7 @@ module.exports = {
           this.queue.unshift(item);
           this.plugin.log(`Command to send: ${util.inspect(this.queue)}`);
         }
-      }
+      });
     } catch (err) {
       this.checkError(err);
     }
@@ -84,22 +85,23 @@ module.exports = {
       switch (message.command) {
         case 'read':
           if (message.data !== undefined) {
-            for (item of message.data) {
-              payload.push(Object.assign({ value: await this.readValueCommand(item) }, item));
-            }
+            // for (const item of message.data) {
+            //  payload.push(Object.assign({ value: this.readValueCommand(item) }, item));
+            // }
+            payload = message.data.map(item => Object.assign({ value: this.readValueCommand(item) }, item));
           }
-
-          this.plugin.sendResponse(Object.assign({ payload: payload }, message), 1);
+          this.plugin.sendResponse(Object.assign({ payload }, message), 1);
           break;
 
         case 'write':
           if (message.data !== undefined) {
-            for (item of message.data) {
-              payload.push(await this.writeValueCommand(item));
-            }
+            // for (const item of message.data) {
+            //  payload.push(this.writeValueCommand(item));
+            // }
+            payload = message.data.map(item => this.writeValueCommand(item));
           }
 
-          this.plugin.sendResponse(Object.assign({ payload: payload }, message), 1);
+          this.plugin.sendResponse(Object.assign({ payload }, message), 1);
           break;
 
         default:
@@ -128,11 +130,11 @@ module.exports = {
       process.exit(8);
     }
 
-    for (item of this.channels) {
+    this.channels.forEach(item => {
       item.unitid = parseInt(item.unitid);
-      item.address = parseInt(item.address);
+      this.address = parseInt(item.address);
       item.vartype = this.getVartype(item.vartype);
-    }
+    });
 
     this.polls = tools.getPolls(this.channels, this.params);
     this.plugin.log(`Polls = ${util.inspect(this.polls)}`, 2);
@@ -188,7 +190,9 @@ module.exports = {
           throw new Error(`Протокол ${this.params.transport} еще не имплементирован`);
       }
     } catch (err) {
-      this.checkError(err)
+      this.checkError(err);
+      this.plugin.log(`Connection fail! EXIT`, 1);
+      process.exit(1);
     }
   },
 
@@ -207,26 +211,49 @@ module.exports = {
 
   async read(item, allowSendNext) {
     this.client.setID(item.unitid);
-    this.plugin.log(`READ: unitId = ${item.unitid}, FC = ${item.fcr}, address = ${this.showAddress(item.address)}, length = ${item.length}`, 1);
+    this.plugin.log(
+      `READ: unitId = ${item.unitid}, FC = ${item.fcr}, address = ${this.showAddress(item.address)}, length = ${
+        item.length
+      }`,
+      1
+    );
 
     try {
       let res = await this.modbusReadCommand(item.fcr, item.address, item.length);
+      if (res && res.buffer) {
+        this.plugin.sendData(tools.getDataFromResponse(res.buffer, item.ref));
+        this.plugin.log(res.buffer, 2);
+      }
 
-      this.plugin.sendData(tools.getDataFromResponse(res.buffer, item.ref));
-      this.plugin.log(res.buffer, 2);
-
+      /*
       if (allowSendNext !== undefined && allowSendNext === true) {
         await sleep(this.params.polldelay || 1);
         await this.sendNext();
       }
+      */
     } catch (err) {
       this.checkError(err);
+    }
+
+    if (allowSendNext !== undefined && allowSendNext === true) {
+      await sleep(this.params.polldelay || 1);
+
+      if (!this.client.isOpen) {
+        this.plugin.log('Port is not open! TRY RECONNECT');
+        await this.connect();
+      }
+      await this.sendNext();
     }
   },
 
   async readValueCommand(item) {
     this.client.setID(item.unitid);
-    this.plugin.log(`READ: unitId = ${item.unitid}, FC = ${item.fcr}, address = ${this.showAddress(item.address)}, length = ${item.length}`, 1);
+    this.plugin.log(
+      `READ: unitId = ${item.unitid}, FC = ${item.fcr}, address = ${this.showAddress(item.address)}, length = ${
+        item.length
+      }`,
+      1
+    );
 
     try {
       let res = await this.modbusReadCommand(item.fcr, item.address, item.length);
@@ -262,7 +289,10 @@ module.exports = {
     this.client.setID(item.unitid);
     let fcw = item.vartype == 'bool' ? 5 : 6;
 
-    this.plugin.log(`WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${item.value}`, 1);
+    this.plugin.log(
+      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${item.value}`,
+      1
+    );
 
     // Результат на запись - принять!!
     try {
@@ -284,7 +314,10 @@ module.exports = {
     this.client.setID(item.unitid);
     let fcw = item.vartype == 'bool' ? 5 : 6;
 
-    this.plugin.log(`WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${item.value}`, 1);
+    this.plugin.log(
+      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${item.value}`,
+      1
+    );
 
     try {
       let val = tools.writeValue(item.value, item);
@@ -313,7 +346,7 @@ module.exports = {
           return await this.client.writeRegisters(address, value);
 
         default:
-          throw new Error(`Функция ${fcr} на запись не поддерживается`);
+          throw new Error(`Функция ${fcw} на запись не поддерживается`);
       }
     } catch (err) {
       this.checkError(err);
@@ -354,8 +387,8 @@ module.exports = {
     }
 
     // TODO - проверить ошибку и не всегда выходить
-    this.terminatePlugin();
-    process.exit(1);
+    // this.terminatePlugin();
+    // process.exit(1);
   },
 
   getVartype(vt) {
@@ -383,8 +416,7 @@ module.exports = {
   showAddress(address) {
     if (isNaN(address)) {
       return 'NaN';
-    } else {
-      return `${address} (0x${Number(address).toString(16)})`;
     }
+    return `${address} (0x${Number(address).toString(16)})`;
   }
 };
