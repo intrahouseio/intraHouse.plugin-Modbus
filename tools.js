@@ -204,18 +204,18 @@ function parseBufferRead(buffer, item) {
 
       if (i1 >= 0) {
         return i1 * 0x100000000 + i2; // <<32 does not work
-      } else {
-        return i1 * 0x100000000 - i2; // I have no solution for that !
-      }
+      } 
+      return i1 * 0x100000000 - i2; // I have no solution for that !
+      
     case 'int64le':
       i2 = buffer.readUInt32LE(offset * 2);
       i1 = buffer.readInt32LE(offset * 2 + 4);
 
       if (i1 >= 0) {
         return i1 * 0x100000000 + i2; // <<32 does not work
-      } else {
-        return i1 * 0x100000000 - i2; // I have no solution for that !
-      }
+      } 
+      return i1 * 0x100000000 - i2; // I have no solution for that !
+      
     case 'floatbe':
       return buffer.readFloatBE(offset * 2);
     case 'floatle':
@@ -249,7 +249,7 @@ function readValue(buffer, item) {
   return (item.usek) ? transformHtoS(result, item) : result;
 }
 
-function parseBufferWrite(buffer, item) {
+function parseBufferWrite( value, item) {
   let a0;
   let a1;
   let a2;
@@ -406,7 +406,7 @@ function parseBufferWrite(buffer, item) {
       buffer.writeDoubleLE(value, 0);
       break;
     default:
-      throw new Error(`Invalid type: ${type}`);
+      throw new Error(`Invalid type: ${vartype}`);
   }
 
   return buffer;

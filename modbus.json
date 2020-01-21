@@ -368,13 +368,6 @@
       "val": "3"
     },
     {
-      "name": "offset",
-      "note": "$offset",
-      "type": "NUMBER",
-      "order": 13,
-      "val": 0
-    },
-    {
       "name": "gr",
       "note": "$gr",
       "type": "cb",

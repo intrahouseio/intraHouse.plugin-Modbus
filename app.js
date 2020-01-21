@@ -18,7 +18,10 @@ module.exports = {
     this.plugin.channels.onChange(() => this.updateChannels(true));
 
     process.on('exit', this.terminatePlugin.bind(this));
-    process.on('SIGTERM', this.terminatePlugin.bind(this));
+    process.on('SIGTERM', () => {
+      this.terminatePlugin.bind(this);
+      process.exit(0);
+    });
 
     try {
       await this.updateChannels(false);
