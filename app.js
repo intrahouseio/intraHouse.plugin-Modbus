@@ -88,20 +88,20 @@ module.exports = {
       switch (message.command) {
         case 'read':
           if (message.data !== undefined) {
-            // for (const item of message.data) {
-            //  payload.push(Object.assign({ value: this.readValueCommand(item) }, item));
-            // }
-            payload = message.data.map(item => Object.assign({ value: this.readValueCommand(item) }, item));
+            for (const item of message.data) {
+              payload.push(Object.assign({ value: await this.readValueCommand(item) }, item));
+            }
+            // payload = message.data.map(item => Object.assign({ value: this.readValueCommand(item) }, item));
           }
           this.plugin.sendResponse(Object.assign({ payload }, message), 1);
           break;
 
         case 'write':
           if (message.data !== undefined) {
-            // for (const item of message.data) {
-            //  payload.push(this.writeValueCommand(item));
-            // }
-            payload = message.data.map(item => this.writeValueCommand(item));
+            for (const item of message.data) {
+              await payload.push(this.writeValueCommand(item));
+            }
+            // payload = message.data.map(item => this.writeValueCommand(item));
           }
 
           this.plugin.sendResponse(Object.assign({ payload }, message), 1);
@@ -227,13 +227,6 @@ module.exports = {
         this.plugin.sendData(tools.getDataFromResponse(res.buffer, item.ref));
         this.plugin.log(res.buffer, 2);
       }
-
-      /*
-      if (allowSendNext !== undefined && allowSendNext === true) {
-        await sleep(this.params.polldelay || 1);
-        await this.sendNext();
-      }
-      */
     } catch (err) {
       this.checkError(err);
     }
@@ -241,11 +234,9 @@ module.exports = {
     if (allowSendNext !== undefined && allowSendNext === true) {
       await sleep(this.params.polldelay || 1);
 
-      if (!this.client.isOpen) {
-        this.plugin.log('Port is not open! TRY RECONNECT');
-        await this.connect();
-      }
-      await this.sendNext();
+      setImmediate(() => {
+        this.sendNext();
+      });
     }
   },
 
@@ -304,12 +295,15 @@ module.exports = {
       // Получили ответ при записи
       this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
 
-      if (allowSendNext !== undefined && allowSendNext === true) {
-        await sleep(this.plugin.polldelay || 1); // Интервал между запросами
-        await this.sendNext();
-      }
     } catch (err) {
       this.checkError(err);
+    }
+
+    if (allowSendNext !== undefined && allowSendNext === true) {
+      await sleep(this.plugin.polldelay || 1); // Интервал между запросами
+      setImmediate(() => {
+        this.sendNext();
+      });
     }
   },
 
@@ -373,6 +367,11 @@ module.exports = {
 
     if (typeof single !== undefined && single === true) {
       isOnce = true;
+    }
+
+    if (!this.client.isOpen) {
+      this.plugin.log('Port is not open! TRY RECONNECT');
+      await this.connect();
     }
 
     if (item.command) {

@@ -41,6 +41,8 @@
           "arrow-parens":0,
           "no-bitwise":0,
           "radix":0,
+          "no-await-in-loop":0,
+          "no-restricted-syntax":0,
        
           "jsx-a11y/href-no-hash":0,
           "jsx-a11y/img-has-alt":0
