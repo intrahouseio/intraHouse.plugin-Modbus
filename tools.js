@@ -11,6 +11,7 @@ exports.getPolls = getPolls;
 exports.getPollArray = getPollArray;
 exports.getDataFromResponse = getDataFromResponse;
 exports.transformStoH = transformStoH;
+exports.transformHtoS = transformHtoS;
 
 function getDataFromResponse(buf, ref) {
   if (!ref || !util.isArray(ref)) {

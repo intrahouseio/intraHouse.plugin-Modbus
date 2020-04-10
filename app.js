@@ -99,7 +99,7 @@ module.exports = {
         case 'write':
           if (message.data !== undefined) {
             for (const item of message.data) {
-              await payload.push(this.writeValueCommand(item));
+               payload.push(await this.writeValueCommand(item));
             }
             // payload = message.data.map(item => this.writeValueCommand(item));
           }
@@ -295,6 +295,11 @@ module.exports = {
       // Получили ответ при записи
       this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
 
+       // Отправить значение этого канала как при чтении
+       // если нужно - сделать обратное преобразование
+       const value = item.usek ? tools.transformHtoS(item.value, item) : item.value;
+       this.plugin.sendData([{id: item.id, value }]);
+
     } catch (err) {
       this.checkError(err);
     }
@@ -320,6 +325,8 @@ module.exports = {
       let val = tools.writeValue(item.value, item);
       let res = await this.modbusWriteCommand(fcw, item.address, val);
       this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
+      
+      this.plugin.sendData([{id: item.id, value:item.value }]);
 
       return res;
     } catch (err) {
