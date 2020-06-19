@@ -376,7 +376,7 @@ module.exports = {
       isOnce = true;
     }
 
-    if (!this.client.isOpen) {
+    if (this.params.transport != 'tcp' && !this.client.isOpen) {
       this.plugin.log('Port is not open! TRY RECONNECT');
       await this.connect();
     }
@@ -396,8 +396,10 @@ module.exports = {
     }
 
     // TODO - проверить ошибку и не всегда выходить
-    // this.terminatePlugin();
-    // process.exit(1);
+    if (this.params.transport == 'tcp') {
+      this.terminatePlugin();
+      process.exit(1);
+    }
   },
 
   getVartype(vt) {
