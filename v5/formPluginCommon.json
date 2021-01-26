@@ -1,0 +1,284 @@
+{
+  "grid": [
+    { "id": "p1", "xs": 4, "class": "main", "table": "units" },
+    { "id": "p2", "xs": 4, "class": "main", "table": "units" },
+    { "id": "p3", "xs": 4, "class": "main", "table": "units" },
+    { "id": "p4", "xs": 12, "class": "main", "table": "units", "hide":"!data.p2.showbyteorder" },
+    { "id": "p9", "xs": 12, "class": "main", "table": "unitsTreeTable", "height": "fill" }
+  ],
+
+  "spacing": 10,
+  "breadcrumbs": { "tree": "plugins" },
+
+  "p1": [
+    {
+      "prop": "transport",
+      "title": "$transport",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "tcp",
+          "title": "Modbus TCP"
+        },
+        {
+          "id": "rtu",
+          "title": "Modbus RTU"
+        },
+        {
+          "id": "rtuOverTcp",
+          "title": "$rtuOverTcp"
+        },
+        {
+          "id": "rtutcp",
+          "title": "$rtutcp"
+        },
+        {
+          "id": "ascii",
+          "title": "Modbus ASCII"
+        }
+      ],
+      "default": "tcp"
+    },
+    {
+      "prop": "host",
+      "title": "IP",
+      "type": "input",
+      "default": "192.168.0.250",
+      "hide": "!data.p1.transport.id || data.p1.transport.id == \"rtu\" || data.p1.transport.id == \"ascii\""
+    },
+
+    {
+      "prop": "port",
+      "title": "$port",
+      "type": "input",
+      "default": "502",
+      "hide": "!data.p1.transport.id || data.p1.transport.id == \"rtu\" || data.p1.transport.id == \"ascii\""
+    },
+
+    {
+      "prop": "serialport",
+      "title": "$port",
+      "type": "input",
+      "default": "/dev/ttyUSB0",
+      "hide": "!data.p1.transport.id || (data.p1.transport.id !== \"rtu\" && data.p1.transport.id !== \"ascii\")"
+    },
+
+    {
+      "prop": "baudRate",
+      "title": "$baudRate",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "300",
+          "title": "300"
+        },
+        {
+          "id": "600",
+          "title": "600"
+        },
+        {
+          "id": "1200",
+          "title": "1200"
+        },
+        {
+          "id": "2400",
+          "title": "2400"
+        },
+        {
+          "id": "4800",
+          "title": "4800"
+        },
+        {
+          "id": "9600",
+          "title": "9600"
+        },
+        {
+          "id": "19200",
+          "title": "19200"
+        },
+        {
+          "id": "38400",
+          "title": "38400"
+        },
+        {
+          "id": "57600",
+          "title": "57600"
+        },
+        {
+          "id": "115200",
+          "title": "115200"
+        }
+      ],
+      "default": "9600",
+      "hide": "!data.p1.transport.id || (data.p1.transport.id !== \"rtu\" && data.p1.transport.id !== \"ascii\")"
+    },
+    {
+      "prop": "parity",
+      "title": "$parity",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "none",
+          "title": "none"
+        },
+        {
+          "id": "even",
+          "title": "even"
+        },
+        {
+          "id": "odd",
+          "title": "odd"
+        }
+      ],
+      "default": "even",
+      "hide": "!data.p1.transport.id || (data.p1.transport.id !== \"rtu\" && data.p1.transport.id !== \"ascii\")"
+    },
+
+    {
+      "prop": "dataBits",
+      "title": "$dataBits",
+      "default": 8,
+      "type": "input",
+      "hide": "!data.p1.transport.id || (data.p1.transport.id !== \"rtu\" && data.p1.transport.id !== \"ascii\")"
+    },
+
+    {
+      "prop": "stopBits",
+      "title": "$stopBits",
+      "default": 1,
+      "type": "input",
+      "hide": "!data.p1.transport.id || (data.p1.transport.id !== \"rtu\" && data.p1.transport.id !== \"ascii\")"
+    }
+  ],
+
+  "p2": [
+
+    {
+      "prop": "timeout",
+      "title": "$timeout",
+      "default": 5000,
+      "type": "input"
+    },
+
+    {
+      "prop": "polldelay",
+      "title": "$polldelay",
+      "default": 200,
+      "type": "input"
+    },
+
+    {
+      "prop": "maxreadlen",
+      "title": "$maxreadlen",
+      "default": 250,
+      "type": "input"
+    },
+    {
+      "prop": "showbyteorder",
+      "title": "Настроить порядок байт",
+      "type": "cb"
+    }
+  ],
+
+  "p3": [
+    {
+      "prop": "restarttime",
+      "title": "$Unit_Restarttime",
+      "type": "input",
+      "default": 5
+    },
+    { "prop": "loglevel", "title": "$LogLevel", "type": "droplist", "data": "loglevelList" },
+    { "prop": "txt", "title": "$Comment", "type": "input" }
+  ],
+
+  "p4": [
+    {
+      "prop": "bo8",
+      "title": "$bo8",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "title": "Big-Endian, В0 => B0"
+        },
+        {
+          "id": "le",
+          "title": "Little-Endian, В0 => 0B"
+        }
+      ],
+      "default": "be"
+    },
+    {
+      "prop": "bo16",
+      "title": "$bo16",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "title": "Big-Endian, В1B2 => B1B2"
+        },
+        {
+          "id": "le",
+          "title": "Little-Endian, В1B2 => B2B1"
+        }
+      ],
+      "default": "be"
+    },
+    {
+      "prop": "bo32",
+      "title": "$bo32",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "title": "Big-Endian, B1B2B3B4 => B1B2B3B4"
+        },
+        {
+          "id": "sw",
+          "title": "Big-Endian, swap B1B2B3B4 => B3B4B1B2"
+        },
+        {
+          "id": "le",
+          "title": "Little-Endian, B1B2B3B4 => B4B3B2B1"
+        },
+        {
+          "id": "sb",
+          "title": "Little-Endian, swap B1B2B3B4 => B2B1B4B3"
+        }
+      ],
+      "default": "sw"
+    },
+    {
+      "prop": "bo64",
+      "title": "$bo64",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "title": "Big-Endian, B1B2B3B4B5B6B7B8 => B1B2B3B4B5B6B7B8"
+        },
+        {
+          "id": "le",
+          "title": "Little-Endian, B1B2B3B4B5B6B7B8 => B8B7B6B5B4B3B2B1"
+        }
+      ],
+      "default": "be"
+    }
+  ],
+  "p9": [
+    {
+      "title": "",
+      "type": "table",
+      "prop": "unitsTreeTable",
+
+      "columns": [
+        { "prop": "name", "title": "ID", "type": "text", "width": 150 },
+        { "prop": "state", "title": "Состояние", "type": "text", "width": 150 },
+        { "prop": "laststart", "title": "Время запуска", "type": "text", "width": 150 },
+        { "prop": "laststop", "title": "Время останова", "type": "text", "width": 150 },
+        { "prop": "uptime", "title": "Uptime", "type": "text", "width": 150 },
+        { "prop": "error", "title": "Ошибка", "type": "text", "width": 250 }
+      ]
+    }
+  ]
+}
