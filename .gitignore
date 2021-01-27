@@ -1,4 +1,3 @@
-build/
 .vscode/
 _*
 package-lock.json
