@@ -4,7 +4,7 @@
   "description": "Modbus Master plugin for IH",
   "main": "modbus.js",
   "dependencies": {
-    "modbus-serial": "^7.7.2"
+    "modbus-serial": "^8.0.1"
   },
   "devDependencies": {},
   "author": "INTRA",
