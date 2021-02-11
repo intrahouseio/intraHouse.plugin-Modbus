@@ -69,47 +69,47 @@
       "type": "droplist",
       "data": [
         {
-          "id": "300",
+          "id": 300,
           "title": "300"
         },
         {
-          "id": "600",
+          "id": 600,
           "title": "600"
         },
         {
-          "id": "1200",
+          "id": 1200,
           "title": "1200"
         },
         {
-          "id": "2400",
+          "id": 2400,
           "title": "2400"
         },
         {
-          "id": "4800",
+          "id": 4800,
           "title": "4800"
         },
         {
-          "id": "9600",
+          "id": 9600,
           "title": "9600"
         },
         {
-          "id": "19200",
+          "id": 19200,
           "title": "19200"
         },
         {
-          "id": "38400",
+          "id": 38400,
           "title": "38400"
         },
         {
-          "id": "57600",
+          "id": 57600,
           "title": "57600"
         },
         {
-          "id": "115200",
+          "id": 115200,
           "title": "115200"
         }
       ],
-      "default": "9600",
+      "default": 9600,
       "hide": "!data.p1.transport.id || (data.p1.transport.id !== \"rtu\" && data.p1.transport.id !== \"ascii\")"
     },
     {
@@ -138,7 +138,7 @@
       "prop": "dataBits",
       "title": "$dataBits",
       "default": 8,
-      "type": "input",
+      "type": "number",
       "hide": "!data.p1.transport.id || (data.p1.transport.id !== \"rtu\" && data.p1.transport.id !== \"ascii\")"
     },
 
@@ -146,7 +146,7 @@
       "prop": "stopBits",
       "title": "$stopBits",
       "default": 1,
-      "type": "input",
+      "type": "number",
       "hide": "!data.p1.transport.id || (data.p1.transport.id !== \"rtu\" && data.p1.transport.id !== \"ascii\")"
     }
   ],
@@ -157,21 +157,21 @@
       "prop": "timeout",
       "title": "$timeout",
       "default": 5000,
-      "type": "input"
+      "type": "number"
     },
 
     {
       "prop": "polldelay",
       "title": "$polldelay",
       "default": 200,
-      "type": "input"
+      "type": "number"
     },
 
     {
       "prop": "maxreadlen",
       "title": "$maxreadlen",
       "default": 250,
-      "type": "input"
+      "type": "number"
     },
     {
       "prop": "showbyteorder",
@@ -184,7 +184,7 @@
     {
       "prop": "restarttime",
       "title": "$Unit_Restarttime",
-      "type": "input",
+      "type": "number",
       "default": 5
     },
     { "prop": "loglevel", "title": "$LogLevel", "type": "droplist", "data": "loglevelList" },

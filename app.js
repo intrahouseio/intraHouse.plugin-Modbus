@@ -43,6 +43,7 @@ module.exports = {
   },
 
   terminatePlugin() {
+    console.log('TERMINATE PLUGIN')
     if (this.client) {
       this.client.close();
     }
@@ -56,9 +57,9 @@ module.exports = {
         let command = item.command;
 
         if (!command) {
-          if (item.prop == 'set') {
+          // if (item.prop == 'set') {
             item.command = 'set';
-          }
+          // }
         }
 
         item.address = parseInt(item.address);
@@ -391,9 +392,12 @@ module.exports = {
   checkError(e) {
     if (e.errno && networkErrors.includes(e.errno)) {
       this.plugin.log('Network ERROR: ' + e.errno, 0);
+      console.log('Network ERROR: ' + e.errno);
     } else {
       this.plugin.log('ERROR: ' + util.inspect(e), 0);
+      console.log('ERROR: ' + util.inspect(e));
     }
+
 
     // TODO - проверить ошибку и не всегда выходить
     if (this.params.transport == 'tcp') {
