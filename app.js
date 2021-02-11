@@ -71,7 +71,8 @@ module.exports = {
 
         item.vartype = this.getVartype(item.vartype);
 
-        if (id && command) {
+        // if (id && command) {
+        if (id) {
           this.queue.unshift(item);
           this.plugin.log(`Command to send: ${util.inspect(this.queue)}`);
         }
