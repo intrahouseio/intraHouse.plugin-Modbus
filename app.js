@@ -284,23 +284,26 @@ module.exports = {
   async write(item, allowSendNext) {
     this.client.setID(item.unitid);
     let fcw = item.vartype == 'bool' ? 5 : 6;
+    let val = item.value;
+    if (fcw == 6) {
+      val = tools.writeValue(item.value, item);
+      if (Buffer.isBuffer(val) && val.length > 2)  fcw = 16;
+    }
 
     this.plugin.log(
-      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${item.value}`,
+      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${util.inspect(val)}`,
       1
     );
 
     // Результат на запись - принять!!
     try {
-      let res = await this.modbusWriteCommand(fcw, item.address, item.value);
+      let res = await this.modbusWriteCommand(fcw, item.address, val);
 
       // Получили ответ при записи
       this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
 
        // Отправить значение этого канала как при чтении
-       // если нужно - сделать обратное преобразование
-       const value = item.usek ? tools.transformHtoS(item.value, item) : item.value;
-       this.plugin.sendData([{id: item.id, value }]);
+       this.plugin.sendData([{id: item.id, value: item.value }]);
 
     } catch (err) {
       this.checkError(err);
@@ -317,14 +320,20 @@ module.exports = {
   async writeValueCommand(item) {
     this.client.setID(item.unitid);
     let fcw = item.vartype == 'bool' ? 5 : 6;
+    let val = item.value;
+    if (fcw == 6) {
+      val = tools.writeValue(item.value, item);
+      if (Buffer.isBuffer(val) && val.length > 2)  fcw = 16;
+    }
 
     this.plugin.log(
-      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${item.value}`,
+      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${util.inspect(val)}`,
       1
     );
 
     try {
-      let val = tools.writeValue(item.value, item);
+      // let val = tools.writeValue(item.value, item);
+  
       let res = await this.modbusWriteCommand(fcw, item.address, val);
       this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
       
@@ -344,11 +353,11 @@ module.exports = {
           return await this.client.writeCoil(address, value);
 
         case 6:
-          this.plugin.log(`writeSingleRegister: address = ${this.showAddress(address)}, value = ${value}`, 1);
+          this.plugin.log(`writeSingleRegister: address = ${this.showAddress(address)}, value = ${util.inspect(value)}`, 1);
           return await this.client.writeRegister(address, value);
 
         case 16:
-          this.plugin.log(`writeMultipleRegisters: address = ${this.showAddress(address)}, value = ${value}`, 1);
+          this.plugin.log(`writeMultipleRegisters: address = ${this.showAddress(address)}, value = ${util.inspect(value)}`, 1);
           return await this.client.writeRegisters(address, value);
 
         default:

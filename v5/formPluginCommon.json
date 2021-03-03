@@ -188,6 +188,15 @@
       "default": 5
     },
     { "prop": "loglevel", "title": "$LogLevel", "type": "droplist", "data": "loglevelList" },
+    { "prop": "restartOnSchedule", "title": "Перезагружать плагин по расписанию ", "type": "cb" },
+   
+    {
+      "prop": "par2_OnSchedule",
+      "title": "Правило cron",
+      "type": "input",
+      "hide": "!data.p3.restartOnSchedule",
+      "default":"* * * * *"
+    },
     { "prop": "txt", "title": "$Comment", "type": "input" }
   ],
 

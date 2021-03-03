@@ -2,17 +2,18 @@
 * Fake modbus server (units)
 */
 
+const util = require("util");
 var ModbusRTU = require("modbus-serial");
 
 let val = 0;
 let dir = 1;
 var vector = {
-  getInputRegister: function(addr, unitID) {
+  getInputRegister(addr, unitID) {
     console.log("getInputRegister adr=" + addr + " uId=" + unitID+ " val=" + String(addr+200));
     return addr+200;
   },
 
-  getHoldingRegister: function(addr, unitID) {
+  getHoldingRegister(addr, unitID) {
     if (val >= 32) dir = -1;
     if (val == 0) dir = 1;
     val += dir;
@@ -21,18 +22,18 @@ var vector = {
     return val;
   },
 
-  getCoil: function(addr, unitID) {
+  getCoil(addr, unitID) {
     console.log("getHoldingRegister adr=" + addr + " uId=" + unitID+ " val=" + Number(addr % 2 === 0));
     return addr % 2 === 0;
   },
 
-  setRegister: function(addr, value, unitID) {
-    console.log("set register", addr, value, unitID);
-    return;
+  setRegister(addr, value, unitID) {
+    console.log("set register addr=" +addr+"  value="+ util.inspect(value)+ "  unitID="+unitID);
+    
   },
-  setCoil: function(addr, value, unitID) {
+  setCoil(addr, value, unitID) {
     console.log("set coil", addr, value, unitID);
-    return;
+    
   }
 };
 
