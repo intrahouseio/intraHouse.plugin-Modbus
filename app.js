@@ -282,7 +282,7 @@ module.exports = {
   },
 
   async write(item, allowSendNext) {
-    this.client.setID(item.unitid);
+    this.client.setID(parseInt(item.unitid));
     let fcw = item.vartype == 'bool' ? 5 : 6;
     let val = item.value;
     if (fcw == 6) {

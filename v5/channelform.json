@@ -116,7 +116,8 @@
       "title": "$kh",
       "type": "input",
       "hide": "!data.p2.usek || data.p2.vartype.id == 'bool'"
-    }
+    },
+    { "prop": "devpropname", "title": "Свойство устройства для привязки", "type": "input"}
   ],
   "p3": [
     { "prop": "r", "title": "$Read", "type": "cb" },
