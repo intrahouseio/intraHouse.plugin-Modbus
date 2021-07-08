@@ -1,6 +1,6 @@
 {
   "name": "modbus",
-  "description": "Modbus Master plugin for IH",
+  "description": "Modbus plugin for IH",
   "module": "modbus.js",
   "single": 0,
   "restartOnChannelsChange": 0,

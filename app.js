@@ -43,7 +43,7 @@ module.exports = {
   },
 
   terminatePlugin() {
-    console.log('TERMINATE PLUGIN')
+    console.log('TERMINATE PLUGIN');
     if (this.client) {
       this.client.close();
     }
@@ -51,35 +51,67 @@ module.exports = {
 
   parseAct(message) {
     try {
-      // for (const item of message.data) {
-      message.data.forEach(item => {
+      message.data.forEach(aitem => {
+        const item = this.formWriteObject(aitem);
+        if (item) {
+          this.queue.unshift(item);
+          this.plugin.log(`Command to send: ${util.inspect(this.queue)}`);
+        } 
+        /*
         let id = item.id;
         let command = item.command;
 
-        if (!command) {
-          // if (item.prop == 'set') {
-            item.command = 'set';
-          // }
-        }
+        if (!command) item.command = 'set';
 
         item.address = parseInt(item.address);
         item.value = parseInt(item.value);
 
-        if (item.usek) {
-          item.value = tools.transformStoH(item.value, item);
-        }
-
         item.vartype = this.getVartype(item.vartype);
-
-        // if (id && command) {
         if (id) {
           this.queue.unshift(item);
           this.plugin.log(`Command to send: ${util.inspect(this.queue)}`);
         }
+        */
       });
     } catch (err) {
       this.checkError(err);
     }
+  },
+
+  formWriteObject(chanItem) {
+    if (!chanItem) return;
+    // Копировать свойства канала в объект
+    const res = {
+      id: chanItem.id,
+      unitid: chanItem.unitid,
+      value: Number(chanItem.value) || 0,
+      command: chanItem.value || 'set'
+    };
+
+    if (chanItem.diffw) {
+      res.address = parseInt(chanItem.waddress);
+      res.vartype = chanItem.wvartype;
+      res.force = 0;
+    } else {
+      res.address = parseInt(chanItem.address);
+      res.vartype = chanItem.vartype;
+      res.force = chanItem.r ? 1 : 0;
+    }
+
+    if (!res.vartype) {
+      this.plugin.log('ERROR: Command has empty vartype: '+util.inspect(chanItem))
+      return;
+    }
+    res.vartype = this.getVartype(res.vartype);
+
+    if (chanItem.usek) {
+      res.usek = 1;
+      res.ks0 = parseInt(chanItem.ks0);
+      res.ks = parseInt(chanItem.ks);
+      res.kh0 = parseInt(chanItem.kh0);
+      res.kh = parseInt(chanItem.kh);
+    }
+    return res;
   },
 
   async parseCommand(message) {
@@ -101,7 +133,7 @@ module.exports = {
         case 'write':
           if (message.data !== undefined) {
             for (const item of message.data) {
-               payload.push(await this.writeValueCommand(item));
+              payload.push(await this.writeValueCommand(item));
             }
             // payload = message.data.map(item => this.writeValueCommand(item));
           }
@@ -282,17 +314,28 @@ module.exports = {
   },
 
   async write(item, allowSendNext) {
+    console.log('WRITE START item=' + util.inspect(item));
     this.client.setID(parseInt(item.unitid));
     let fcw = item.vartype == 'bool' ? 5 : 6;
     let val = item.value;
     if (fcw == 6) {
+      console.log('WRITE BEFORE tools val =' + util.inspect(val));
       val = tools.writeValue(item.value, item);
-      if (Buffer.isBuffer(val) && val.length > 2)  fcw = 16;
+
+      console.log('WRITE tools val =' + util.inspect(val));
+      if (Buffer.isBuffer(val) && val.length > 2) fcw = 16;
     }
 
     this.plugin.log(
-      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${util.inspect(val)}`,
+      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${util.inspect(
+        val
+      )}`,
       1
+    );
+    console.log(
+      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${util.inspect(
+        val
+      )}`
     );
 
     // Результат на запись - принять!!
@@ -301,10 +344,13 @@ module.exports = {
 
       // Получили ответ при записи
       this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
+      console.log(`Write result: ${util.inspect(res)}`);
 
-       // Отправить значение этого канала как при чтении
-       this.plugin.sendData([{id: item.id, value: item.value }]);
-
+      if (item.force) {
+        // Только если адрес для чтения и записи одинаковый
+        // Отправить значение этого канала как при чтении
+        this.plugin.sendData([{ id: item.id, value: item.value }]);
+      }
     } catch (err) {
       this.checkError(err);
     }
@@ -323,21 +369,31 @@ module.exports = {
     let val = item.value;
     if (fcw == 6) {
       val = tools.writeValue(item.value, item);
-      if (Buffer.isBuffer(val) && val.length > 2)  fcw = 16;
+      if (Buffer.isBuffer(val) && val.length > 2) fcw = 16;
     }
 
     this.plugin.log(
-      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${util.inspect(val)}`,
+      `WRITE: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(item.address)}, value = ${util.inspect(
+        val
+      )}`,
       1
+    );
+
+    console.log(
+      `writeValueCommand: unitId = ${item.unitid}, FC = ${fcw}, address = ${this.showAddress(
+        item.address
+      )}, value = ${util.inspect(val)}`
     );
 
     try {
       // let val = tools.writeValue(item.value, item);
-  
+
       let res = await this.modbusWriteCommand(fcw, item.address, val);
       this.plugin.log(`Write result: ${util.inspect(res)}`, 1);
-      
-      this.plugin.sendData([{id: item.id, value:item.value }]);
+      console.log(`Write result: ${util.inspect(res)}`);
+      if (item.force) {
+        this.plugin.sendData([{ id: item.id, value: item.value }]);
+      }
 
       return res;
     } catch (err) {
@@ -353,11 +409,17 @@ module.exports = {
           return await this.client.writeCoil(address, value);
 
         case 6:
-          this.plugin.log(`writeSingleRegister: address = ${this.showAddress(address)}, value = ${util.inspect(value)}`, 1);
+          this.plugin.log(
+            `writeSingleRegister: address = ${this.showAddress(address)}, value = ${util.inspect(value)}`,
+            1
+          );
           return await this.client.writeRegister(address, value);
 
         case 16:
-          this.plugin.log(`writeMultipleRegisters: address = ${this.showAddress(address)}, value = ${util.inspect(value)}`, 1);
+          this.plugin.log(
+            `writeMultipleRegisters: address = ${this.showAddress(address)}, value = ${util.inspect(value)}`,
+            1
+          );
           return await this.client.writeRegisters(address, value);
 
         default:
@@ -407,7 +469,6 @@ module.exports = {
       this.plugin.log('ERROR: ' + util.inspect(e), 0);
       console.log('ERROR: ' + util.inspect(e));
     }
-
 
     // TODO - проверить ошибку и не всегда выходить
     if (this.params.transport == 'tcp') {

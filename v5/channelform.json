@@ -1,9 +1,10 @@
 {
   "grid": [
     { "id": "p2", "xs": 4, "class": "main", "table": "devhard" },
-    { "id": "p3", "xs": 8, "class": "main", "table": "devhard" },
+    { "id": "p3", "xs": 4, "class": "main", "table": "devhard" },
+    { "id": "p4", "xs": 4, "class": "main", "table": "devhard" },
 
-    { "id": "p9", "xs": 12, "class": "main", "table": "onechannelrtTable" }
+    { "id": "p5", "xs": 12, "class": "main", "table": "devhard" }
   ],
   "spacing": 4,
 
@@ -15,6 +16,7 @@
       "type": "input",
       "default": 1
     },
+    { "prop": "devpropname", "title": "Свойство для привязки", "type": "input" },
 
     {
       "prop": "address",
@@ -116,9 +118,10 @@
       "title": "$kh",
       "type": "input",
       "hide": "!data.p2.usek || data.p2.vartype.id == 'bool'"
-    },
-    { "prop": "devpropname", "title": "Свойство устройства для привязки", "type": "input"}
+    }
+   
   ],
+
   "p3": [
     { "prop": "r", "title": "$Read", "type": "cb" },
     {
@@ -129,64 +132,140 @@
       "data": [
         {
           "id": "1",
-          "title": "FC1 - Read Coil"
+          "title": "FC1 - Read Coil",
+          "hide":"data.p2.vartype.id != 'bool'"
         },
 
         {
           "id": "2",
-          "title": "FC2 - Read Discrete Input"
+          "title": "FC2 - Read Discrete Input",
+          "hide":"data.p2.vartype.id != 'bool'"
         },
         {
           "id": "3",
-          "title": "FC3 - Read Holding Register"
+          "title": "FC3 - Read Holding Register",
+          "hide":"data.p2.vartype.id == 'bool'"
         },
         {
           "id": "4",
-          "title": "FC4 - Read Input Register"
+          "title": "FC4 - Read Input Register",
+          "hide":"data.p2.vartype.id == 'bool'"
         }
       ],
 
       "default": "3"
     },
-    { "prop": "inv", "title": "$Devhard_Inv", "type": "cb", "hide": "!data.p3.r || data.p2.vartype.id != 'bool'" },
-    { "prop": "calc", "title": "$Devhard_Calc", "type": "input", "hide": "!data.p3.r || data.p3.inv" },
+    {"prop": "gr", "title": "$gr", "type": "cb", "hide": "!data.p3.r", "default": 1},
 
+    { "prop": "bit", "title": "Извлечь битовое значение", "type": "cb", "hide": "!data.p3.r || data.p2.vartype.id == 'bool'" },
+    { "prop": "offset", "title": "Смещение (0-15)", "type": "number", "hide": "!data.p3.r || !data.p3.bit || data.p2.vartype.id == 'bool'" },
+    { "prop": "inv", "title": "$Devhard_Inv", "type": "cb", "hide": "!data.p3.r || !data.p3.bit && data.p2.vartype.id != 'bool'" }
+  ],
+
+  "p4": [
+    { "prop": "w", "title": "$Write", "type": "cb" },
+    { "prop": "inv_out", "title": "$Devhard_Out", "type": "cb", "hide": "1 == 1" },
+   
+    { "prop": "diffw", "title": "Для записи использовать другой адрес", "type": "cb",  "hide": "!data.p4.w || !data.p3.r" },
     {
-      "prop": "gr",
-      "title": "$gr",
-      "type": "cb",
-      "hide": "!data.p3.r",
-      "default": 1
+      "prop": "waddress",
+      "title": "$address",
+      "type": "input",
+      "default": "0x0000",
+      "hide": "!data.p4.w || !data.p4.diffw"
+    },
+    {
+      "prop": "wvartype",
+      "title": "$vartype",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "bool",
+          "title": "BOOL"
+        },
+
+        {
+          "id": "int8",
+          "title": "INT8, 1 байт"
+        },
+
+        {
+          "id": "uint8",
+          "title": "UINT8, 1 байт"
+        },
+
+        {
+          "id": "int16",
+          "title": "INT16, 2 байта"
+        },
+
+        {
+          "id": "uint16",
+          "title": "UINT16, 2 байта"
+        },
+
+        {
+          "id": "int32",
+          "title": "INT32, 4 байта"
+        },
+
+        {
+          "id": "uint32",
+          "title": "UINT32, 4 байта"
+        },
+
+        {
+          "id": "int64",
+          "title": "INT64, 8 байт"
+        },
+
+        {
+          "id": "uint64",
+          "title": "UINT64, 8 байт"
+        },
+
+        {
+          "id": "float",
+          "title": "FLOAT, 4 байта"
+        },
+
+        {
+          "id": "double",
+          "title": "DOUBLE, 8 байт"
+        }
+      ],
+      "hide": "!data.p4.w || !data.p4.diffw",
+      "default": "int16"
     },
 
-    { "prop": "w", "title": "$Write", "type": "cb" },
 
-    { "prop": "inv_out", "title": "$Devhard_Out", "type": "cb", "hide": "!data.p3.w || data.p2.vartype.id != 'bool'" },
-    { "prop": "calc_out", "title": "$Devhard_Calc_Out", "type": "input", "hide": "!data.p3.w || data.p3.inv_out" },
+   
     {
       "prop": "writeButton",
       "title": "$doWrite",
       "type": "button",
       "command": "writetochannel",
       "param": "write",
-      "hide": "!data.p3.w"
+      "hide": "!data.p4.w"
     },
     {
       "prop": "show_fcw_fc5",
       "title": " FC5 - Write Single Coil",
       "type": "header",
-      "hide": "!data.p3.w || data.p2.vartype.id != 'bool'"
+      "hide": "!data.p4.w || !data.p4.diffw && data.p2.vartype.id != 'bool' || data.p4.diffw && data.p4.wvartype.id != 'bool'"
     },
     {
       "prop": "show_fcw_fc6",
       "title": " FC6 - Write Single Register",
       "type": "header",
-      "hide": "!data.p3.w || data.p2.vartype.id == 'bool'"
+      "hide": "!data.p4.w || !data.p4.diffw && data.p2.vartype.id == 'bool' || data.p4.diffw && data.p4.wvartype.id == 'bool'"
     }
+   
   ],
 
-  "p9": [
-    { "prop": "realtime_chan_str", "title": "Канал", "type": "text" },
-    { "prop": "realtime_dev_str", "title": "Устройство", "type": "text" }
+  "p5": [
+    { "prop": "calc", "title": "$Devhard_Calc", "type": "input", "hide": "!data.p3.r || data.p3.inv" },
+    { "prop": "calc_out", "title": "$Devhard_Calc_Out", "type": "input", "hide": "!data.p4.w || data.p4.inv_out" },
+    { "prop": "txt", "title": "$Comment", "type": "input"}
   ]
 }

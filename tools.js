@@ -40,7 +40,7 @@ function getPolls(channels, params) {
   while (i < config.length) {
     let item = config[i];
     if (!current || isDiffBlock(item) || getLengthAfterAdd(item) > maxReadLen) {
-      // Записать предыдущий элемент  
+      // Записать предыдущий элемент
       if (current && length) {
         result.push(Object.assign({ length }, current));
       }
@@ -79,17 +79,22 @@ function getPolls(channels, params) {
     */
 
   // Добавить негрупповое чтение
-  channels.filter(item => !item.gr).forEach(item => {
-    result.push({
-      length: getVarLen(item.vartype),
-      unitid: item.unitid,
-      desc: item.desc,
-      fcr: item.fcr,
-      address: item.address,
-      ref: [getRefobj(item)]
+  channels
+    .filter(item => !item.gr && item.r)
+    .forEach(item => {
+      if (!item.vartype) {
+        console.log('NO VARTYPE: ' + util.inspect(item));
+      } else {
+        result.push({
+          length: getVarLen(item.vartype),
+          unitid: item.unitid,
+          desc: item.desc,
+          fcr: item.fcr,
+          address: item.address,
+          ref: [getRefobj(item)]
+        });
+      }
     });
-  });
-
 
   return result;
 
@@ -108,6 +113,11 @@ function getRefobj(item) {
     vartype: item.vartype,
     widx: 0
   };
+
+  if (item.bit) {
+    refobj.bit = item.bit;
+    refobj.offset = item.offset;
+  }
 
   if (item.usek) {
     refobj.usek = item.usek;
@@ -164,14 +174,15 @@ function parseBufferRead(buffer, item) {
     case 'uint32le':
       return buffer.readUInt32LE(offset * 2);
     case 'uint32sw':
-      buf = new Buffer(4);
+      // buf = new Buffer(4);
+      buf = Buffer.alloc(4);
       buf[0] = buffer[offset * 2 + 2];
       buf[1] = buffer[offset * 2 + 3];
       buf[2] = buffer[offset * 2 + 0];
       buf[3] = buffer[offset * 2 + 1];
       return buf.readUInt32BE(0);
     case 'uint32sb':
-      buf = new Buffer(4);
+      buf = Buffer.alloc(4);
       buf[0] = buffer[offset * 2 + 1];
       buf[1] = buffer[offset * 2 + 0];
       buf[2] = buffer[offset * 2 + 3];
@@ -182,14 +193,14 @@ function parseBufferRead(buffer, item) {
     case 'int32le':
       return buffer.readInt32LE(offset * 2);
     case 'int32sw':
-      buf = new Buffer(4);
+      buf = Buffer.alloc(4);
       buf[0] = buffer[offset * 2 + 2];
       buf[1] = buffer[offset * 2 + 3];
       buf[2] = buffer[offset * 2 + 0];
       buf[3] = buffer[offset * 2 + 1];
       return buf.readInt32BE(0);
     case 'int32sb':
-      buf = new Buffer(4);
+      buf = Buffer.alloc(4);
       buf[0] = buffer[offset * 2 + 1];
       buf[1] = buffer[offset * 2 + 0];
       buf[2] = buffer[offset * 2 + 3];
@@ -205,31 +216,31 @@ function parseBufferRead(buffer, item) {
 
       if (i1 >= 0) {
         return i1 * 0x100000000 + i2; // <<32 does not work
-      } 
+      }
       return i1 * 0x100000000 - i2; // I have no solution for that !
-      
+
     case 'int64le':
       i2 = buffer.readUInt32LE(offset * 2);
       i1 = buffer.readInt32LE(offset * 2 + 4);
 
       if (i1 >= 0) {
         return i1 * 0x100000000 + i2; // <<32 does not work
-      } 
+      }
       return i1 * 0x100000000 - i2; // I have no solution for that !
-      
+
     case 'floatbe':
       return buffer.readFloatBE(offset * 2);
     case 'floatle':
       return buffer.readFloatLE(offset * 2);
     case 'floatsw':
-      buf = new Buffer(4);
+      buf = Buffer.alloc(4);
       buf[0] = buffer[offset * 2 + 2];
       buf[1] = buffer[offset * 2 + 3];
       buf[2] = buffer[offset * 2 + 0];
       buf[3] = buffer[offset * 2 + 1];
       return buf.readFloatBE(0);
     case 'floatsb':
-      buf = new Buffer(4);
+      buf = Buffer.alloc(4);
       buf[0] = buffer[offset * 2 + 1];
       buf[1] = buffer[offset * 2 + 0];
       buf[2] = buffer[offset * 2 + 3];
@@ -247,10 +258,21 @@ function parseBufferRead(buffer, item) {
 function readValue(buffer, item) {
   let result = parseBufferRead(buffer, item);
 
-  return (item.usek) ? transformHtoS(result, item) : result;
+  return processOneValue(result, item);
+  // return item.usek ? transformHtoS(result, item) : result;
 }
 
-function parseBufferWrite( value, item) {
+function processOneValue(result, item) {
+  if (item.usek) return transformHtoS(result, item);
+  if (item.bit) return extractBit(result, item.offset);
+  return result;
+}
+
+function extractBit(val, offset) {
+  return val & (1 << offset) ? 1 : 0;
+}
+
+function parseBufferWrite(value, item) {
   let a0;
   let a1;
   let a2;
@@ -259,51 +281,55 @@ function parseBufferWrite( value, item) {
 
   switch (vartype) {
     case 'uint8be':
-      buffer = new Buffer(2);
+      buffer = Buffer.alloc(2);
       buffer[0] = 0;
-      buffer.writeUInt8(value & 0xFF, 1);
+      buffer.writeUInt8(value & 0xff, 1);
       break;
     case 'uint8le':
-      buffer = new Buffer(2);
+      buffer = Buffer.alloc(2);
       buffer[1] = 0;
-      buffer.writeUInt8(value & 0xFF, 0);
+      buffer.writeUInt8(value & 0xff, 0);
       break;
     case 'int8be':
-      buffer = new Buffer(2);
+      buffer = Buffer.alloc(2);
       buffer[0] = 0;
-      buffer.writeInt8(value & 0xFF, 1);
+      buffer.writeInt8(value & 0xff, 1);
       break;
     case 'int8le':
-      buffer = new Buffer(2);
+      buffer = Buffer.alloc(2);
       buffer[1] = 0;
-      buffer.writeInt8(value & 0xFF, 0);
+      buffer.writeInt8(value & 0xff, 0);
       break;
     case 'uint16be':
-      buffer = new Buffer(2);
+      buffer = Buffer.alloc(2);
+      if (value > 65565) {
+        console.log('TOO BIG NUMBER! '+value);
+      }
       buffer.writeUInt16BE(value, 0);
       break;
     case 'uint16le':
-      buffer = new Buffer(2);
+      buffer = Buffer.alloc(2);
       buffer.writeUInt16LE(value, 0);
       break;
     case 'int16be':
-      buffer = new Buffer(2);
+      // buffer = new Buffer(2);
+      buffer = Buffer.alloc(2);
       buffer.writeInt16BE(value, 0);
       break;
     case 'int16le':
-      buffer = new Buffer(2);
+      buffer = Buffer.alloc(2);
       buffer.writeInt16LE(value, 0);
       break;
     case 'uint32be':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeUInt32BE(value, 0);
       break;
     case 'uint32le':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeUInt32LE(value, 0);
       break;
     case 'uint32sw':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeUInt32BE(value, 0);
       a0 = buffer[0];
       a1 = buffer[1];
@@ -313,7 +339,7 @@ function parseBufferWrite( value, item) {
       buffer[3] = a1;
       break;
     case 'uint32sb':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeUInt32BE(value, 0);
       a0 = buffer[0];
       a2 = buffer[2];
@@ -323,15 +349,15 @@ function parseBufferWrite( value, item) {
       buffer[3] = a2;
       break;
     case 'int32be':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeInt32BE(value, 0);
       break;
     case 'int32le':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeInt32LE(value, 0);
       break;
     case 'int32sw':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeInt32BE(value, 0);
       a0 = buffer[0];
       a1 = buffer[1];
@@ -341,7 +367,7 @@ function parseBufferWrite( value, item) {
       buffer[3] = a1;
       break;
     case 'int32sb':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeInt32BE(value, 0);
       a0 = buffer[0];
       a2 = buffer[2];
@@ -351,35 +377,35 @@ function parseBufferWrite( value, item) {
       buffer[3] = a2;
       break;
     case 'uint64be':
-      buffer = new Buffer(8);
+      buffer = Buffer.alloc(8);
       buffer.writeUInt32BE(value >> 32, 0);
-      buffer.writeUInt32BE(value & 0xFFFFFFFF, 4);
+      buffer.writeUInt32BE(value & 0xffffffff, 4);
       break;
     case 'uint64le':
-      buffer = new Buffer(8);
-      buffer.writeUInt32LE(value & 0xFFFFFFFF, 0);
+      buffer = Buffer.alloc(8);
+      buffer.writeUInt32LE(value & 0xffffffff, 0);
       buffer.writeUInt32LE(value >> 32, 4);
       break;
     case 'int64be':
-      buffer = new Buffer(8);
+      buffer = Buffer.alloc(8);
       buffer.writeInt32BE(value >> 32, 0);
-      buffer.writeUInt32BE(value & 0xFFFFFFFF, 4);
+      buffer.writeUInt32BE(value & 0xffffffff, 4);
       break;
     case 'int64le':
-      buffer = new Buffer(8);
-      buffer.writeUInt32LE(value & 0xFFFFFFFF, 0);
+      buffer = Buffer.alloc(8);
+      buffer.writeUInt32LE(value & 0xffffffff, 0);
       buffer.writeInt32LE(value >> 32, 4);
       break;
     case 'floatbe':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeFloatBE(value, 0);
       break;
     case 'floatle':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeFloatLE(value, 0);
       break;
     case 'floatsw':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeFloatBE(value, 0);
       a0 = buffer[0];
       a1 = buffer[1];
@@ -389,7 +415,7 @@ function parseBufferWrite( value, item) {
       buffer[3] = a1;
       break;
     case 'floatsb':
-      buffer = new Buffer(4);
+      buffer = Buffer.alloc(4);
       buffer.writeFloatBE(value, 0);
       a0 = buffer[0];
       a2 = buffer[2];
@@ -399,23 +425,23 @@ function parseBufferWrite( value, item) {
       buffer[3] = a2;
       break;
     case 'doublebe':
-      buffer = new Buffer(8);
+      buffer = Buffer.alloc(8);
       buffer.writeDoubleBE(value, 0);
       break;
     case 'doublele':
-      buffer = new Buffer(8);
+      buffer = Buffer.alloc(8);
       buffer.writeDoubleLE(value, 0);
       break;
     default:
+      console.log(`Invalid type: ${vartype}  THROW`);
       throw new Error(`Invalid type: ${vartype}`);
   }
-
   return buffer;
 }
 
 function writeValue(buffer, item) {
-  let val = (item.usek) ? transformStoH(buffer, item) : buffer;
-
+  let val = item.usek ? transformStoH(buffer, item) : buffer;
+  console.log('tools.writeValue val = '+util.inspect(val))
   return parseBufferWrite(val, item);
 }
 
@@ -424,7 +450,7 @@ function getBitValue(buffer, offset) {
   let i = Math.floor(offset / 8);
   let j = offset % 8;
 
-  return (buffer[i] & (1 << j)) ? 1 : 0;
+  return buffer[i] & (1 << j) ? 1 : 0;
 }
 
 // Возвращает кол-во СЛОВ (word) или бит по типу переменной
@@ -482,7 +508,7 @@ function byorder(ordernames, direction, parsingInt) {
     arrForSort = ordernames.split(',');
   }
 
-  return function (o, p) {
+  return function(o, p) {
     if (typeof o !== 'object' || typeof p !== 'object' || arrForSort.length === 0) {
       return 0;
     }
@@ -525,18 +551,17 @@ function byorder(ordernames, direction, parsingInt) {
 
 // При записи
 function transformStoH(value, { ks0, ks, kh0, kh }) {
+  value = parseInt(value);
   ks0 = parseInt(ks0) || 0;
   kh0 = parseInt(kh0) || 0;
   ks = ks != ks0 ? parseInt(ks) : ks0 + 1;
   kh = parseInt(kh);
-
-  return kh != kh0 ? Math.round((value - ks0) * (kh - kh0) / (ks - ks0)) + kh0 : kh;
+  return kh != kh0 ? Math.round(((value - ks0) * (kh - kh0)) / (ks - ks0)) + kh0 : kh;
 }
 
 // При чтении - коэф-ты уже обработаны
 function transformHtoS(value, { ks0, ks, kh0, kh }) {
-  let result = Math.round((value - kh0) * (ks - ks0) / (kh - kh0)) + ks0;
+  let result = Math.round(((value - kh0) * (ks - ks0)) / (kh - kh0)) + ks0;
 
   return result;
 }
-
